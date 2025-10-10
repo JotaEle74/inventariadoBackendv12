@@ -33,9 +33,7 @@ class ActivoResource extends JsonResource
             'area' => $this->area ? [
                 'id' => $this->area->id,
                 'codigo' => $this->codigo,
-                'nombre_completo' => $this->area->edificio . ' - ' . 
-                                    $this->area->aula,
-                
+                'aula' => $this->area->aula,
                 'oficina' => $this->area->oficina ? [
                     'id' => $this->area->oficina->id,
                     'denominacion' => $this->area->oficina->denominacion,

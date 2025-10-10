@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Http\Resources;
-
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AreaResource extends JsonResource
@@ -20,4 +19,4 @@ class AreaResource extends JsonResource
             //'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
         ];
     }
-} 
+}

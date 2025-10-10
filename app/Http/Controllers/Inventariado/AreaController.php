@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 
 class AreaController extends BaseController
 {
-    public function index(Request $request): AnonymousResourceCollection|JsonResponse
+    public function index(Request $request)//: AnonymousResourceCollection|JsonResponse
     {
         try {
             $query = Area::query()->with(['oficina']);
@@ -58,7 +58,7 @@ class AreaController extends BaseController
                 $sortDirection = $request->boolean('desc', false) ? 'desc' : 'asc';
                 $query->orderBy($request->sort_by, $sortDirection);
             } else {
-                $query->orderBy('edificio')->orderBy('piso')->orderBy('aula');
+                $query->orderBy('edificio')->orderBy('aula');
             }
 
             if ($request->has('per_page')) {

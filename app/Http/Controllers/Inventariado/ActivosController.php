@@ -44,7 +44,7 @@ class ActivosController extends BaseController
     public function index(Request $request)//: AnonymousResourceCollection|JsonResponse
     {
         try {
-            $query = Activo::with(['area.oficina.entidad', 'responsable']);
+            $query = Activo::with(['area.oficina', 'responsable']);
             $user = $request->user();
             if($request->has('codigo')){
                 $query->where('codigo', 'like', $request->codigo);
