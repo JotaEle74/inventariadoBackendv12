@@ -14,7 +14,9 @@ return new class extends Migration
         Schema::create('activos', function (Blueprint $table) {
             $table->id();
             $table->string('codigo')->unique();
-            $table->string('denominacion');
+            $table->string('denominacion')->nullable();
+            //$table->string('denominacion_aux')->nullabel();
+            $table->enum('tipo', ['AF', 'AU', 'ND'])->default('AF');
             $table->string('marca')->nullable();
             $table->string('modelo')->nullable();
             $table->string('color')->nullable();
@@ -31,6 +33,7 @@ return new class extends Migration
             //$table->foreignId('catalogo_id')->nullable()->constrained('catalogo_bienes');
             $table->foreignId('area_id')->nullable()->constrained('areas');
             $table->foreignId('responsable_id')->nullable()->constrained('users');
+            $table->foreignId('edificio_id')->nullable()->constrained('edificios');
             $table->string('dniInventariador')->nullable();
             $table->string('nombreInventariador')->nullable();
             $table->timestamps();

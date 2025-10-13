@@ -94,4 +94,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(\App\Models\DeclaracionUso::class);
     }
+    public function activos()
+    {
+        return $this->belongsToMany(Activo::class)->withPivot('fecha', 'report');
+    }
 }

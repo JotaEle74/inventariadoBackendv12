@@ -13,6 +13,7 @@ class Oficina extends Model
     protected $fillable = [
         'codigo',
         'denominacion',
+        'escuela'
     ];
 
     public function area()

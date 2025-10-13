@@ -9,7 +9,7 @@ class AreaResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'edificio' => $this->edificio,
+            //'edificio' => $this->edificio,
             'codigo' => $this->codigo,
             'aula' => $this->aula,
             'oficina' => new OficinaResource($this->whenLoaded('oficina')),

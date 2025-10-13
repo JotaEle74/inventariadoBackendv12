@@ -31,6 +31,8 @@ class UpdateActivoRequest extends StoreActivoRequest
             'notas' => 'nullable|string',
             'dniInventariador'=> 'nullable|string',
             'nombreInventariador'=> 'nullable|string',
+            'tipo'=>'nullable|string|in:AF,ND,AU',
+            'edificio_id'=>'nullable|exists:edificios,id'
         ];
     }
 }

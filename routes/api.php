@@ -19,6 +19,7 @@ use App\Http\Controllers\Inventariado\ItoController;
 use App\Http\Controllers\Inventariado\DeclaracionController;
 use App\Http\Controllers\Inventariado\SoftwareController;
 use App\Http\Controllers\Api\UsuarioController;
+use App\Http\Controllers\Inventariado\EdificioController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('auth.register');
@@ -99,6 +100,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/', [ActivosController::class, 'index']);//->middleware('permission:activos.view');
         Route::post('/', [ActivosController::class, 'store']);//->middleware('permission:activos.create');
         Route::get('/dashboard', [ActivosController::class, 'dashboard']);
+        Route::get('/reportepdf', [ActivosController::class, 'reportepdf']);
         Route::get('/inventariador', [ActivosController::class, 'inventariador']);
         Route::get('/{activo}', [ActivosController::class, 'show']);//->middleware('permission:activos.view');
         Route::put('/{activo}', [ActivosController::class, 'update']);
@@ -156,6 +158,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/{declaracion}', [DeclaracionController::class, 'show']);
         Route::delete('/{declaracion}', [DeclaracionController::class, 'destroy']);
         Route::get('/{declaracion}/pdf', [DeclaracionController::class, 'generarPDF']);
+    });
+    Route::prefix('auth/edificios')->group(function () {
+        Route::get('/', [EdificioController:: class, 'index']);
     });
 //});
 

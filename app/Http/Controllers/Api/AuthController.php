@@ -193,7 +193,7 @@ class AuthController extends Controller
             return $this->errorResponse('Usuario no autenticado', [], 401);
         }
         
-        $user->load(['activeSessions', 'oficinas.entidad']);
+        $user->load(['activeSessions', 'oficinas']);
         return $this->successResponse([
             'user' => $user
         ], 'Perfil de usuario obtenido correctamente');
@@ -409,12 +409,12 @@ class AuthController extends Controller
 
     public function usersAll(Request $request){
         if ($request->has('dni')){
-            return User::with('oficinas.entidad')
+            return User::with('oficinas')
                 ->where('dni', $request->dni)
                 ->get();
         }
 
         // Si no hay filtro, traer todo con relaciones
-        return User::with('oficinas.entidad')->get();
+        return User::with('oficinas')->get();
     }
 }

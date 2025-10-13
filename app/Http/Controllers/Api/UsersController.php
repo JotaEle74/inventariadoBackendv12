@@ -20,7 +20,7 @@ class UsersController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection|JsonResponse
     {
-        $query = User::with(['role', 'oficinas.entidad']);
+        $query = User::with(['role', 'oficinas']);
         if($request->has('search')){
             $search=$request->search;
             $query->where(function($q) use ($search) {
@@ -41,7 +41,7 @@ class UsersController extends Controller
         unset($validated['oficinas']);
         $user = User::create($validated);
         $user->oficinas()->sync($oficinas);
-        $user->load(['role', 'oficinas.entidad']);
+        $user->load(['role', 'oficinas']);
         return $this->successResponse(new UserResource($user), 'Usuario creado correctamente', 201);
     }
 
@@ -72,7 +72,7 @@ class UsersController extends Controller
         if ($oficinas !== null) {
             $user->oficinas()->sync($oficinas);
         }
-        $user->load(['role', 'oficinas.entidad']);
+        $user->load(['role', 'oficinas']);
         return $this->successResponse(new UserResource($user), 'Usuario actualizado correctamente');
     }
 

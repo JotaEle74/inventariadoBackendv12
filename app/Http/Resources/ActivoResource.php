@@ -41,6 +41,7 @@ class ActivoResource extends JsonResource
                 ] : null
             ] : null,
             'piso' => $this->piso,
+            'tipo'=> $this->tipo,
             'responsable' => $this->responsable ? [
                 'id' => $this->responsable->id,
                 'name' => $this->responsable->name,

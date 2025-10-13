@@ -30,16 +30,11 @@ class AreaController extends BaseController
                 $oficinasIds = $user->oficinas()->pluck('oficinas.id')->toArray(); // IDs de las oficinas del usuario
                 $query->whereIn('oficina_id', $oficinasIds);
             }
-            
-            if ($request->has('edificio')) {
-                $query->where('edificio', 'like', '%' . $request->edificio . '%');
-            }
 
             if ($request->has('search')) {
                 $search = $request->search;
                 $query->where(function ($q) use ($search) {
                     $q->where('codigo', 'like', '%' . $search . '%')
-                      ->orWhere('edificio', 'like', '%' . $search . '%')
                       ->orWhereHas('oficina', function ($q2) use ($search) {
                           $q2->where('denominacion', 'like', '%' . $search . '%');
                       });
@@ -58,7 +53,7 @@ class AreaController extends BaseController
                 $sortDirection = $request->boolean('desc', false) ? 'desc' : 'asc';
                 $query->orderBy($request->sort_by, $sortDirection);
             } else {
-                $query->orderBy('edificio')->orderBy('aula');
+                $query->orderBy('aula');
             }
 
             if ($request->has('per_page')) {

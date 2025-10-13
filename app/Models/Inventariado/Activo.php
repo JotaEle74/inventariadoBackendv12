@@ -12,6 +12,7 @@ class Activo extends Model
     protected $fillable = [
         'codigo',
         'denominacion',
+        'tipo',
         'marca',
         'modelo',
         'color',
@@ -28,6 +29,7 @@ class Activo extends Model
         'piso',
         'responsable_id',
         //'notas',
+        'edificio_id',
         'declaracion',
         'dniInventariador',
         'nombreInventariador',
@@ -103,5 +105,13 @@ class Activo extends Model
     public function declaracionesUso()
     {
         return $this->belongsToMany(Declaracion::class, 'activo_declaracion', 'activo_id', 'declaracion_id');
+    }
+    public function edificio()
+    {
+        return $this->belongsTo(Edificio::class);
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'activo_user')->withPivot('fecha', 'report');
     }
 }

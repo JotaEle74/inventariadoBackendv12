@@ -10,7 +10,6 @@ class Area extends Model
     protected $table = 'areas';
 
     protected $fillable = [
-        'edificio',
         'codigo',
         'aula',
         'oficina_id'

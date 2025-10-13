@@ -16,7 +16,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-
+use App\Models\User;
+use App\Models\Inventariado\Area;
+use PDF;
 class ActivosController extends BaseController
 {
     use ExportsAssets;
@@ -24,7 +26,8 @@ class ActivosController extends BaseController
     public function inventariador(Request $request)
     {
         try {
-            $query=Activo::with(['catalogo:id,denominacion', 'responsable:id,name', 'area.oficina']);
+            //$query=Activo::with(['catalogo:id,denominacion', 'responsable:id,name', 'area.oficina']);
+            $query=Activo::with(['responsable:id,name', 'area.oficina']);
             $user = $request->user();
             $oficinaIds = $user->oficinas->pluck('id');
             //$query->where('dniInventariador', $user->dni);
@@ -269,6 +272,9 @@ class ActivosController extends BaseController
         try {
             $validatedData = $request->validated();
             $activo->update($validatedData);
+            $user = $request->user();
+            $user->activos()->attach($activo->id, ['fecha'=> now()]);
+            $activo->save();
             DB::commit();
             return $this->successResponse(
                 new ActivoResource($activo->fresh()),
@@ -317,5 +323,38 @@ class ActivosController extends BaseController
             Log::error('Error al obtener movimientos del activo: ' . $e->getMessage());
             return $this->handleException($e);
         }
+    }
+
+    public function reportepdf(Request $request)
+    {
+        $user=User::find($request->id);
+        $sub = DB::table('activo_user')
+            ->select(DB::raw('MAX(id) as last_id'))
+            ->groupBy('activo_id');
+
+        $activos = DB::table('activo_user as au')
+        ->select(
+            'a.*',
+            'au.fecha as fecha_registro',
+            'au.report',
+            'au.id as aux_id',
+            'r.dni as responsable_dni',
+            'r.name as responsable_nombre'
+        )
+        ->joinSub($sub, 'sub', fn($join) => $join->on('au.id', '=', 'sub.last_id'))
+        ->join('activos as a', 'a.id', '=', 'au.activo_id')
+        ->leftJoin('areas as ar', 'a.area_id', '=', 'ar.id')
+        ->leftJoin('users as r', 'a.responsable_id', '=', 'r.id')
+        ->where('au.user_id', $user->id)
+        ->get();
+        $area=Area::find($activos[0]->area_id);
+
+        $pdf = PDF::loadView('pdf.reporte', [
+                'activos' => $activos,
+                'area'=>$area
+            ]);
+            $pdf->setPaper('a4', 'landscape');
+            return $pdf->stream('reporete-' . '.pdf');
+        return $activos;
     }
 }
