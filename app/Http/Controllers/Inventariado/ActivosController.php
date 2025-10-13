@@ -62,10 +62,7 @@ class ActivosController extends BaseController
                 $search = $request->search;
                 $query->where(function($q) use ($search){
                     $q->orWhere('codigo', 'like', "%{$search}%")
-                      ->orWhere('numero_serie', 'like', "%{$search}%")
-                      ->orWhereHas('catalogo', function($q2) use ($search) {
-                          $q2->where('denominacion', 'like', "%{$search}%");
-                      });
+                      ->orWhere('numero_serie', 'like', "%{$search}%");
                 });
             }
 
@@ -76,12 +73,6 @@ class ActivosController extends BaseController
             if($request->has('oficina_id')){
                 $query->whereHas('area', function($q) use ($request) {
                     $q->where('oficina_id', $request->oficina_id);
-                });
-            }
-
-            if($request->has('entidad_id')){
-                $query->whereHas('area.oficina', function($q) use ($request) {
-                    $q->where('entidad_id', $request->entidad_id);
                 });
             }
 
@@ -266,7 +257,7 @@ class ActivosController extends BaseController
         }
     }
 
-    public function update(UpdateActivoRequest $request, Activo $activo): JsonResponse
+    public function update(UpdateActivoRequest $request, Activo $activo)//: JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -354,7 +345,6 @@ class ActivosController extends BaseController
                 'area'=>$area
             ]);
             $pdf->setPaper('a4', 'landscape');
-            return $pdf->stream('reporete-' . '.pdf');
-        return $activos;
+        return $pdf->stream('reporete-' . '.pdf');
     }
 }

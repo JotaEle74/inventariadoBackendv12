@@ -94,7 +94,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     });
 });
 
-//Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     // Catalogo
     Route::prefix('auth/activos')->group(function () {
         Route::get('/', [ActivosController::class, 'index']);//->middleware('permission:activos.view');
@@ -162,7 +162,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('auth/edificios')->group(function () {
         Route::get('/', [EdificioController:: class, 'index']);
     });
-//});
+});
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('mantenimientos')->group(function () {

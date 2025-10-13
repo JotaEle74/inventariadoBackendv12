@@ -32,7 +32,7 @@ class ActivoResource extends JsonResource
             'condicion_display' => $this->getCondicionDisplay(),
             'area' => $this->area ? [
                 'id' => $this->area->id,
-                'codigo' => $this->codigo,
+                'codigo' => $this->area->codigo,
                 'aula' => $this->area->aula,
                 'oficina' => $this->area->oficina ? [
                     'id' => $this->area->oficina->id,
