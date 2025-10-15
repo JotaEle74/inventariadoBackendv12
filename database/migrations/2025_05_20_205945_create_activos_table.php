@@ -36,6 +36,7 @@ return new class extends Migration
             $table->foreignId('edificio_id')->nullable()->constrained('edificios');
             $table->string('dniInventariador')->nullable();
             $table->string('nombreInventariador')->nullable();
+            $table->string('telefono')->nullable();
             $table->timestamps();
         });
     }

@@ -23,6 +23,7 @@ class UpdateUserRequest extends StoreUserRequest
             'oficinas' => 'sometimes|array',
             'oficinas.*' => 'exists:oficinas,id',
             'role_id' => 'sometimes|exists:roles,id',
+            'grupo'=>'nullable|string'
         ];
     }
 

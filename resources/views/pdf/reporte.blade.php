@@ -74,7 +74,7 @@
                     <strong>UBICACIÓN:</strong>{{$area->aula}}<br>
                     <strong>RESPONSABLE:</strong> {{ $activos[0]->responsable_dni }} - {{ $activos[0]->responsable_nombre }}
                 </td>
-                <td class="info-table">Fecha: {{ $activos[0]->fecha_registro }}<br>
+                <td class="info-table">Grupo: {{$inventariador->grupo}}<br>Fecha: {{ $activos[0]->fecha_registro }}<br>
                     TIPO DE VERIFICACIÓN: FÍSICA(X) DIGITAL( )
                 </td>
             </tr>
@@ -92,7 +92,7 @@
                 <th width="4%">Color</th>
                 <th width="4%">Serie</th>
                 <th>Dimensiones</th>
-                <th width="2%">Sit</th>
+                <th width="3%">Sit</th>
                 <th width="3%">Estado</th>
                 <th width="2%">item</th>
                 <th>Observación</th>
@@ -111,14 +111,14 @@
                     <td>{{ $activo->numero_serie }}</td>
                     <td>{{ $activo->dimension }}</td>
                     <td>{{ $activo->condicion }}</td>
-                    <td>{{ $activo->estado }}</td>
+                    <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td>
                     <td>{{ $activo->aux_id }}</td>
                     <td>{{ $activo->descripcion }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-    <p>Inventariador(re): <br> {{ $activos[0]->responsable_dni }} - {{ $activos[0]->responsable_nombre }}</p>
+    <p>Inventariador(re): <br> {{ $inventariador->dni }} - {{ $inventariador->name }}</p>
     <div style="margin: 10px 0; border-top: 1px solid #333; font-size: 11px; line-height: 1.4;">
         <p style="margin-bottom: 10px;"><strong>DECLARACIÓN DE RESPONSABILIDAD:</strong></p>
         

@@ -15,8 +15,8 @@ class UpdateActivoRequest extends StoreActivoRequest
             'denominacion' => 'sometimes|string|max:255',
             'descripcion' => 'nullable|string',
             //'catalogo_id' => 'sometimes|exists:catalogo_bienes,id',
-            'marca' => 'sometimes|string|max:100',
-            'modelo' => 'sometimes|string|max:100',
+            'marca' => 'nullable|string|max:100',
+            'modelo' => 'nullable|string|max:100',
             'numero_serie' => 'nullable|string|max:100',
             'dimension' => 'nullable|string|max:100',
             'aula'=>'nullable|string|max:10',
@@ -32,7 +32,8 @@ class UpdateActivoRequest extends StoreActivoRequest
             'dniInventariador'=> 'nullable|string',
             'nombreInventariador'=> 'nullable|string',
             'tipo'=>'nullable|string|in:AF,ND,AU',
-            'edificio_id'=>'nullable|exists:edificios,id'
+            'edificio_id'=>'nullable|exists:edificios,id',
+            'telefono'=>'nullable|string'
         ];
     }
 }

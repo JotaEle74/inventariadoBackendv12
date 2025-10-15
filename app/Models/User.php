@@ -27,6 +27,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'telefono',
         'oficina_id',
         'role_id',
+        'grupo',
         'email_verified_at'
     ];
 
@@ -96,6 +97,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function activos()
     {
-        return $this->belongsToMany(Activo::class)->withPivot('fecha', 'report');
+        return $this->belongsToMany(Activo::class)->withPivot('fecha', 'report', 'grupo');
     }
 }

@@ -23,6 +23,7 @@ class StoreActivoRequest extends FormRequest
             'marca' => 'nullable|string|max:100',
             'modelo' => 'nullable|string|max:100',
             'color' => 'nullable|string|max:100',
+            'aula'=>'nullable|string|max:10',
             'numero_serie' => 'nullable|string|max:100',
             'dimension'=>'nullable|string|max:100',
             'aula'=>'nullable|string|max:8',
@@ -34,9 +35,11 @@ class StoreActivoRequest extends FormRequest
             'area_id' => 'required|exists:areas,id',
             'piso' => 'nullable|string',
             'responsable_id' => 'required|exists:users,id',
-            'notas' => 'nullable|string',
             'dniInventariador'=> 'nullable|string',
             'nombreInventariador'=> 'nullable|string',
+            'tipo'=>'nullable|string|in:AF,ND,AU',
+            'edificio_id'=>'nullable|exists:edificios,id',
+            'telefono'=>'nullable|string'
         ];
     }
 

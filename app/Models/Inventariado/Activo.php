@@ -33,6 +33,7 @@ class Activo extends Model
         'declaracion',
         'dniInventariador',
         'nombreInventariador',
+        'telefono'
     ];
 
     protected $casts = [
@@ -112,6 +113,6 @@ class Activo extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'activo_user')->withPivot('fecha', 'report');
+        return $this->belongsToMany(User::class, 'activo_user')->withPivot('fecha', 'report', 'grupo');
     }
 }

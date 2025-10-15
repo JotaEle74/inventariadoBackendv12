@@ -24,7 +24,8 @@ class StoreUserRequest extends FormRequest
             'oficinas' => 'required|array',
             'oficinas.*' => 'exists:oficinas,id',
             'role_id' => 'nullable|exists:roles,id',
-            'email_verified_at' => 'nullable'
+            'email_verified_at' => 'nullable',
+            'grupo'=>'nullable|string'
         ];
     }
 

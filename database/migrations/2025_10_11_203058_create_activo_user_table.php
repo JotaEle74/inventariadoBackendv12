@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('activo_user', function (Blueprint $table) {
             $table->id();
             $table->boolean('report')->default(false);
+            $table->string('grupo')->nullable();
             //$table->string('counters')->nullable();
             $table->date('fecha');
             $table->foreignId('activo_id')->constrained('activos')->onDelete('cascade');

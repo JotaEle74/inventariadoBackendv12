@@ -264,7 +264,7 @@ class ActivosController extends BaseController
             $validatedData = $request->validated();
             $activo->update($validatedData);
             $user = $request->user();
-            $user->activos()->attach($activo->id, ['fecha'=> now()]);
+            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo]);
             $activo->save();
             DB::commit();
             return $this->successResponse(
@@ -329,6 +329,7 @@ class ActivosController extends BaseController
             'au.fecha as fecha_registro',
             'au.report',
             'au.id as aux_id',
+            'au.grupo as grupo',
             'r.dni as responsable_dni',
             'r.name as responsable_nombre'
         )
@@ -336,13 +337,22 @@ class ActivosController extends BaseController
         ->join('activos as a', 'a.id', '=', 'au.activo_id')
         ->leftJoin('areas as ar', 'a.area_id', '=', 'ar.id')
         ->leftJoin('users as r', 'a.responsable_id', '=', 'r.id')
-        ->where('au.user_id', $user->id)
+        //->where('au.user_id', $user->id)
+        ->where('au.grupo', $user->grupo)
+        ->where('au.report', false)
         ->get();
+        //foreach($activos as $activo){
+        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+        //}
+        if($activos->isEmpty()){
+            return "Aun no tienes registros";
+        }
         $area=Area::find($activos[0]->area_id);
 
         $pdf = PDF::loadView('pdf.reporte', [
                 'activos' => $activos,
-                'area'=>$area
+                'area'=>$area,
+                'inventariador'=>$user
             ]);
             $pdf->setPaper('a4', 'landscape');
         return $pdf->stream('reporete-' . '.pdf');
