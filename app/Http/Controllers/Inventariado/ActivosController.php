@@ -47,7 +47,7 @@ class ActivosController extends BaseController
     public function index(Request $request)//: AnonymousResourceCollection|JsonResponse
     {
         try {
-            $query = Activo::with(['area.oficina', 'responsable']);
+            $query = Activo::with(['area.oficina', 'responsable', 'edificio']);
             $user = $request->user();
             if($request->has('codigo')){
                 $query->where('codigo', 'like', $request->codigo);
@@ -230,6 +230,8 @@ class ActivosController extends BaseController
             $data = $request->validated();
             Log::info('Datos antes de la inserción:', $data);
             $activo = Activo::create($data);
+            $user = $request->user();
+            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo]);
             DB::commit();
             return $this->successResponse(
                 new ActivoResource($activo->fresh()),
@@ -326,12 +328,14 @@ class ActivosController extends BaseController
         $activos = DB::table('activo_user as au')
         ->select(
             'a.*',
+            'ar.oficina_id',
             'au.fecha as fecha_registro',
             'au.report',
             'au.id as aux_id',
             'au.grupo as grupo',
-            'r.dni as responsable_dni',
-            'r.name as responsable_nombre'
+            'r.id as r_id',
+            'r.dni as r_dni',
+            'r.name as r_name',
         )
         ->joinSub($sub, 'sub', fn($join) => $join->on('au.id', '=', 'sub.last_id'))
         ->join('activos as a', 'a.id', '=', 'au.activo_id')
@@ -341,6 +345,15 @@ class ActivosController extends BaseController
         ->where('au.grupo', $user->grupo)
         ->where('au.report', false)
         ->get();
+        $end=$activos->last();
+        $activosFilter = $activos->filter(function($activo) use ($end) {
+            return $activo->area_id == $end->area_id;
+        });
+        $activos=$activosFilter->values();
+        $total = DB::table('activo_user as au')
+        ->where('au.report', true)
+        ->where('au.grupo', $user->grupo)
+        ->count();
         //foreach($activos as $activo){
         //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
         //}
@@ -352,7 +365,8 @@ class ActivosController extends BaseController
         $pdf = PDF::loadView('pdf.reporte', [
                 'activos' => $activos,
                 'area'=>$area,
-                'inventariador'=>$user
+                'inventariador'=>$user,
+                'total'=>$total
             ]);
             $pdf->setPaper('a4', 'landscape');
         return $pdf->stream('reporete-' . '.pdf');

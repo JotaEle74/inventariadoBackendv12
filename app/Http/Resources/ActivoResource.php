@@ -40,6 +40,10 @@ class ActivoResource extends JsonResource
                     'codigo' => $this->area->oficina->codigo
                 ] : null
             ] : null,
+            'edificio'=>$this->edificio? [
+                'id'=>$this->edificio->id,
+                'denominacion'=>$this->edificio->denominacion,
+            ] : null,
             'piso' => $this->piso,
             'tipo'=> $this->tipo,
             'responsable' => $this->responsable ? [
@@ -47,6 +51,9 @@ class ActivoResource extends JsonResource
                 'name' => $this->responsable->name,
                 'dni' => $this->responsable->dni
             ] : null,
+            'dniInventariador'=>$this->dniInventariador,
+            'nombreInventariador'=>$this->nombreInventariador,
+            'telefonoInventariador'=>$this->telefono,
             'movimientos' => MovimientoResource::collection($this->whenLoaded('movimientos')),
             //'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             //'updated_at' => $this->updated_at->format('Y-m-d H:i:s')

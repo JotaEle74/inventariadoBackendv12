@@ -109,7 +109,7 @@ class Activo extends Model
     }
     public function edificio()
     {
-        return $this->belongsTo(Edificio::class);
+        return $this->belongsTo(\App\Models\Edificio::class);
     }
     public function users()
     {

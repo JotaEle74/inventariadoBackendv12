@@ -29,6 +29,9 @@
         .page-number:before {
             content: counter(page);
         }
+        .page-title {
+            font-size: 8px;
+        }
         .main-header { text-align: center; margin-bottom: 20px; }
         .logo { width: 120px; margin-bottom: 10px; }
         .titulo { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
@@ -56,8 +59,8 @@
 </head>
 <body>
     <header>
-        <p class="page-number headerleft">UNIVERSIDAD NACIONAL DEL ALTIPLANO
-        <span class="page-number headerright"></span> /
+        <p class="page-title headerleft" style="font-size: 10px;">UNIVERSIDAD NACIONAL DEL ALTIPLANO <br><span style="margin-top: -26px; display: inline-block;">Oficina de control de patrimonio</span></p>
+        <span class="page-number headerright"></span>
     </header>
 
     <main>
@@ -72,7 +75,7 @@
             <tr class="info-table">
                 <td class="info-table"><strong>CENTRO DE COSTO:</strong>{{$area->oficina->denominacion}}<br>
                     <strong>UBICACIÓN:</strong>{{$area->aula}}<br>
-                    <strong>RESPONSABLE:</strong> {{ $activos[0]->responsable_dni }} - {{ $activos[0]->responsable_nombre }}
+                    <strong>RESPONSABLE:</strong> {{ $activos[0]->r_dni }} - {{ $activos[0]->r_name }}
                 </td>
                 <td class="info-table">Grupo: {{$inventariador->grupo}}<br>Fecha: {{ $activos[0]->fecha_registro }}<br>
                     TIPO DE VERIFICACIÓN: FÍSICA(X) DIGITAL( )
@@ -85,15 +88,15 @@
             <tr>
                 <th width="2%">N°</th>
                 <th width="4%">Código</th>
-                <th>Denominación</th>
-                <th>Marca</th>
-                <th>Modelo</th>
+                <th width="30%">Denominación</th>
+                <th width="4%">Marca</th>
+                <th width="4%">Modelo</th>
                 <th width="3%">Tipo</th>
-                <th width="4%">Color</th>
-                <th width="4%">Serie</th>
-                <th>Dimensiones</th>
-                <th width="3%">Sit</th>
+                <!-- <th width="4%">Color</th> -->
+                <th width="4%">Serie/Dimensiones</th>
+                <!-- <th width="2%">Sit</th> -->
                 <th width="3%">Estado</th>
+                <th width="3%">ID codigo</th>
                 <th width="2%">item</th>
                 <th>Observación</th>
             </tr>
@@ -101,17 +104,17 @@
         <tbody>
             @foreach($activos as $activo)
                 <tr>
-                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="text-center">{{ $total+$loop->iteration }}</td>
                     <td>{{ $activo->codigo }}</td>
                     <td>{{ $activo->denominacion }}</td>
                     <td>{{ $activo->marca }}</td>
                     <td>{{ $activo->modelo }}</td>
                     <td>{{ $activo->tipo }}</td>
-                    <td>{{ $activo->color }}</td>
-                    <td>{{ $activo->numero_serie }}</td>
-                    <td>{{ $activo->dimension }}</td>
+                    <!-- <td>{{ $activo->color }}</td> -->
+                    <td>{{ $activo->numero_serie ? $activo->numero_serie : $activo->dimension }}</td>
                     <td>{{ $activo->condicion }}</td>
-                    <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td>
+                    <!-- <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td> -->
+                     <td>{{ mt_rand(10000000, 99999999) }}</td>
                     <td>{{ $activo->aux_id }}</td>
                     <td>{{ $activo->descripcion }}</td>
                 </tr>
