@@ -14,7 +14,7 @@ class UpdateAreaRequest extends StoreAreaRequest
     public function rules()
     {
         return [
-            'edificio' => 'sometimes|string|max:100',
+            //'edificio' => 'sometimes|string|max:100',
             'codigo' => 'sometimes|string|max:50',
             'aula' => 'sometimes|string|max:50',
             'oficina_id' => 'nullable|exists:oficinas,id'

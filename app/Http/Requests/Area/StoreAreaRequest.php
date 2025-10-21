@@ -16,7 +16,7 @@ class StoreAreaRequest extends FormRequest
     public function rules()
     {
         return [
-            'edificio' => 'required|string|max:100',
+            //'edificio' => 'required|string|max:100',
             'codigo' => 'required|string|max:100',
             'aula' => 'required|string|max:50',
             'oficina_id' => 'nullable|exists:oficinas,id'

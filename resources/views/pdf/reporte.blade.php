@@ -6,7 +6,7 @@
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         @page {
-            margin: 80px 40px 40px 40px; /* top, right, bottom, left */
+            margin: 40px 10px 10px 10px; /* top, right, bottom, left */
         }
         .headerleft {
             position: fixed;
@@ -19,7 +19,7 @@
         }
         .headerright {
             position: fixed;
-            top: -60px;
+            top: -40px;
             left: 0px;
             right: 0px;
             text-align: right;
@@ -32,7 +32,7 @@
         .page-title {
             font-size: 8px;
         }
-        .main-header { text-align: center; margin-bottom: 20px; }
+        .main-header { text-align: center; margin-bottom: -20px; }
         .logo { width: 120px; margin-bottom: 10px; }
         .titulo { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
         .subtitulo { font-size: 14px; margin-bottom: 20px; }
@@ -45,7 +45,7 @@
             padding-top: 5px;
             text-align: center;
             line-height: 1.2;
-            margin-top: 50px;
+            margin-top: 30px;
             
         }
         .signature-table td, .signature-table tr {
@@ -54,6 +54,9 @@
         }
         .info-table {
             border: none;
+        }
+        .highlight {
+            background-color: #ffdddd;
         }
     </style>
 </head>
@@ -96,14 +99,14 @@
                 <th width="4%">Serie/Dimensiones</th>
                 <!-- <th width="2%">Sit</th> -->
                 <th width="3%">Estado</th>
-                <th width="3%">ID codigo</th>
                 <th width="2%">item</th>
+                <th width="3%">ID codigo</th>
                 <th>Observación</th>
             </tr>
         </thead>
         <tbody>
             @foreach($activos as $activo)
-                <tr>
+                <tr class="{{ $activo->condicion === 'N' ? 'highlight' : '' }}">
                     <td class="text-center">{{ $total+$loop->iteration }}</td>
                     <td>{{ $activo->codigo }}</td>
                     <td>{{ $activo->denominacion }}</td>
@@ -112,27 +115,27 @@
                     <td>{{ $activo->tipo }}</td>
                     <!-- <td>{{ $activo->color }}</td> -->
                     <td>{{ $activo->numero_serie ? $activo->numero_serie : $activo->dimension }}</td>
+                    <!-- <td>{{ $activo->condicion }}</td> -->
                     <td>{{ $activo->condicion }}</td>
                     <!-- <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td> -->
-                     <td>{{ mt_rand(10000000, 99999999) }}</td>
                     <td>{{ $activo->aux_id }}</td>
+                    <td>{{ mt_rand(10000000, 99999999) }}</td>
                     <td>{{ $activo->descripcion }}</td>
                 </tr>
             @endforeach
         </tbody>
     </table>
-    <p>Inventariador(re): <br> {{ $inventariador->dni }} - {{ $inventariador->name }}</p>
     <div style="margin: 10px 0; border-top: 1px solid #333; font-size: 11px; line-height: 1.4;">
         <p style="margin-bottom: 10px;"><strong>DECLARACIÓN DE RESPONSABILIDAD:</strong></p>
         
         <ul style="margin: 0 0 15px 0; padding-left: 20px; line-height: 1.4; font-size: 11px;">
-            <li style="margin-bottom: 8px;">
+            <li style="">
                 El usuario declara haber mostrado todos los bienes muebles que se encuentran bajo su responsabilidad y no contar con más bienes muebles materia de inventario.
             </li>
-            <li style="margin-bottom: 8px;">
+            <li style="">
                 El usuario es responsable de la permanencia y conservación de cada uno de los bienes muebles descritos; se recomienda tomar las precauciones del caso para evitar sustracciones, deterioros, etc.
             </li>
-            <li style="margin-bottom: 8px;">
+            <li style="">
                 Cualquier necesidad de traslado del bien mueble dentro o fuera del local de la Entidad u organización de la Entidad, debe ser previamente comunicado al encargado de la OCP.
             </li>
         </ul>
@@ -148,7 +151,7 @@
             <td>
                 <div class="firma">
                     ______________________________<br>
-                    INVENTARIADOR(ES)<br>
+                    INVENTARIADOR(ES):<br> {{ $inventariador->dni }} - {{ $inventariador->name }}
                 </div>
             </td>
         </tr>

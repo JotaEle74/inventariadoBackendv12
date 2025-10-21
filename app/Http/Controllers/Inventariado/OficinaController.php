@@ -34,7 +34,7 @@ class OficinaController extends BaseController
                 $sortDirection = $request->boolean('desc', false) ? 'desc' : 'asc';
                 $query->orderBy($request->sort_by, $sortDirection);
             } else {
-                $query->orderBy('denominacion');
+                $query->orderBy('codigo');
             }
 
             if ($request->has('per_page')) {
