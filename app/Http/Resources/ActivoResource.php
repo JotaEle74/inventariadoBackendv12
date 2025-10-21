@@ -56,6 +56,10 @@ class ActivoResource extends JsonResource
             'nombreInventariador'=>$this->nombreInventariador,
             'telefonoInventariador'=>$this->telefono,
             'movimientos' => MovimientoResource::collection($this->whenLoaded('movimientos')),
+            'ultimo_report' => $this->users->sortByDesc('pivot.id')->first()?->pivot->report,
+            'item' => $this->users->sortByDesc('pivot.id')->first()?->pivot->item,
+            'cod_toma'=>$this->cod_toma,
+            //'id_item' => $this->users->sortByDesc('pivot.id')->first()?->pivot->id,
             //'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             //'updated_at' => $this->updated_at->format('Y-m-d H:i:s')
         ];
@@ -79,7 +83,6 @@ class ActivoResource extends JsonResource
             'regular' => 'Regular',
             'malo' => 'Malo',
         ];
-        
         return $condiciones[$this->condicion] ?? $this->condicion;
     }
 }

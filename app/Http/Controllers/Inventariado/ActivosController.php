@@ -47,7 +47,7 @@ class ActivosController extends BaseController
     public function index(Request $request)//: AnonymousResourceCollection|JsonResponse
     {
         try {
-            $query = Activo::with(['area.oficina', 'responsable', 'edificio']);
+            $query = Activo::with(['area.oficina', 'responsable', 'edificio', 'users']);
             $user = $request->user();
             if($request->has('codigo')){
                 $query->where('codigo', 'like', $request->codigo);
@@ -354,14 +354,16 @@ class ActivosController extends BaseController
         ->where('au.report', true)
         ->where('au.grupo', $user->grupo)
         ->count();
-        //foreach($activos as $activo){
-        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
-        //}
+        $index=1;
+        foreach($activos as $activo){
+            DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+            DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+            $index++;
+        }
         if($activos->isEmpty()){
             return "Aun no tienes registros";
         }
         $area=Area::find($activos[0]->area_id);
-
         $pdf = PDF::loadView('pdf.reporte', [
                 'activos' => $activos,
                 'area'=>$area,

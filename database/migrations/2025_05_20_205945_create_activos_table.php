@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('activos', function (Blueprint $table) {
             $table->id();
             $table->string('codigo')->unique();
+            $table->string('cod_toma')->unique()->nullable();
             $table->string('denominacion')->nullable();
             //$table->string('denominacion_aux')->nullabel();
             $table->enum('tipo', ['AF', 'AU', 'ND'])->default('AF');

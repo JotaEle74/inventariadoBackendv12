@@ -11,6 +11,7 @@ class Activo extends Model
     protected $table = 'activos';
     protected $fillable = [
         'codigo',
+        'cod_toma',
         'denominacion',
         'tipo',
         'marca',
@@ -113,6 +114,6 @@ class Activo extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'activo_user')->withPivot('fecha', 'report', 'grupo');
+        return $this->belongsToMany(User::class, 'activo_user')->withPivot('id', 'fecha', 'report', 'grupo', 'item');
     }
 }
