@@ -101,6 +101,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::post('/', [ActivosController::class, 'store']);//->middleware('permission:activos.create');
         Route::get('/dashboard', [ActivosController::class, 'dashboard']);
         Route::get('/reportepdf', [ActivosController::class, 'reportepdf']);
+        Route::get('/reporteinventario', [ActivosController::class, 'reporteinventario']);
         Route::get('/inventariador', [ActivosController::class, 'inventariador']);
         Route::get('/{activo}', [ActivosController::class, 'show']);//->middleware('permission:activos.view');
         Route::put('/{activo}', [ActivosController::class, 'update']);

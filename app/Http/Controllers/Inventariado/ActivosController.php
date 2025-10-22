@@ -318,13 +318,30 @@ class ActivosController extends BaseController
         }
     }
 
+    public function reporteinventario(Request $request)
+    {
+        $activos=DB::table('activo_user as au')
+        ->select(
+            DB::raw('MAX(au.id) as aux_ids'),
+            'au.activo_id as au_a_id',
+            'a.id as a_id',
+            'au.grupo as au_grupo'
+        )
+        ->join('activos as a', 'au.activo_id', '=', 'a.id')
+        ->where('au.report', false)
+        ->groupBy('au.activo_id', 'a.id', 'au.grupo')
+        ->orderBy('au.id');
+        return $activos->get();
+    }
     public function reportepdf(Request $request)
     {
         $user=User::find($request->id);
         $sub = DB::table('activo_user')
-            ->select(DB::raw('MAX(id) as last_id'))
-            ->groupBy('activo_id');
-
+            ->join('activos', 'activo_user.activo_id', '=', 'activos.id')
+            ->join('areas', 'activos.area_id', '=', 'areas.id')
+            ->select(DB::raw('MAX(activo_user.id) as last_id'), 'activos.denominacion', 'areas.oficina_id')
+            ->groupBy('activo_user.activo_id', 'activos.denominacion', 'areas.oficina_id');
+        //return $sub->get();
         $activos = DB::table('activo_user as au')
         ->select(
             'a.*',
@@ -351,6 +368,9 @@ class ActivosController extends BaseController
         });
         $activos=$activosFilter->values();
         $total = DB::table('activo_user as au')
+        ->join('activos', 'au.activo_id', '=', 'activos.id')
+        ->join('areas', 'activos.area_id', '=', 'areas.id')
+        ->where('areas.oficina_id', $end->oficina_id)
         ->where('au.report', true)
         ->where('au.grupo', $user->grupo)
         ->count();
