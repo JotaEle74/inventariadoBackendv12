@@ -341,7 +341,6 @@ class ActivosController extends BaseController
             ->join('areas', 'activos.area_id', '=', 'areas.id')
             ->select(DB::raw('MAX(activo_user.id) as last_id'), 'activos.denominacion', 'areas.oficina_id')
             ->groupBy('activo_user.activo_id', 'activos.denominacion', 'areas.oficina_id');
-        //return $sub->get();
         $activos = DB::table('activo_user as au')
         ->select(
             'a.*',
@@ -375,11 +374,11 @@ class ActivosController extends BaseController
         ->where('au.grupo', $user->grupo)
         ->count();
         $index=1;
-        foreach($activos as $activo){
-            DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
-            DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
-            $index++;
-        }
+        //foreach($activos as $activo){
+        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+        //    $index++;
+        //}
         if($activos->isEmpty()){
             return "Aun no tienes registros";
         }
