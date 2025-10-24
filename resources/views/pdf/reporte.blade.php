@@ -6,7 +6,7 @@
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         @page {
-            margin: 20px 25px 0px 25px; /* top, right, bottom, left */
+            margin: 25px 25px 0px 25px; /* top, right, bottom, left */
         }
         .headerleft {
             position: fixed;
@@ -101,7 +101,7 @@
                 <!-- <th width="2%">Sit</th> -->
                 <th width="3%">Estado</th>
                 <th width="2%">item</th>
-                <th width="3%">ID codigo</th>
+                <th width="3%">N° toma</th>
                 <th>Observación</th>
             </tr>
         </thead>
@@ -120,7 +120,7 @@
                     <td>{{ $activo->condicion }}</td>
                     <!-- <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td> -->
                     <td>{{ $activo->aux_id }}</td>
-                    <td>{{ mt_rand(10000000, 99999999) }}</td>
+                    <td>{{ $activo->cod_toma }}</td>
                     <td>{{ $activo->descripcion }}</td>
                 </tr>
             @endforeach
