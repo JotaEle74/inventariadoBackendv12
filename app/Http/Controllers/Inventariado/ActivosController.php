@@ -374,11 +374,11 @@ class ActivosController extends BaseController
         ->where('au.grupo', $user->grupo)
         ->count();
         $index=1;
-        //foreach($activos as $activo){
-        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
-        //    DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
-        //    $index++;
-        //}
+        foreach($activos as $activo){
+            DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+            DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+            $index++;
+        }
         if($activos->isEmpty()){
             return "Aun no tienes registros";
         }

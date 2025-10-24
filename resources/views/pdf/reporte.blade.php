@@ -6,11 +6,11 @@
     <style>
         body { font-family: Arial, sans-serif; font-size: 12px; }
         @page {
-            margin: 40px 10px 10px 10px; /* top, right, bottom, left */
+            margin: 20px 25px 0px 25px; /* top, right, bottom, left */
         }
         .headerleft {
             position: fixed;
-            top: -60px;
+            top: -30px;
             left: 0px;
             right: 0px;
             text-align: left;
@@ -19,7 +19,7 @@
         }
         .headerright {
             position: fixed;
-            top: -40px;
+            top: -20px;
             left: 0px;
             right: 0px;
             text-align: right;
@@ -38,7 +38,7 @@
         .subtitulo { font-size: 14px; margin-bottom: 20px; }
         .datos { margin-bottom: 20px; }
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th, td { border: 1px solid #333; padding: 5px; text-align: left; }
+        th, td { border: 1px solid #333; text-align: left; }
         th { background: #f0f0f0; }
         .text-center { text-align: center; }
         .firma { 
@@ -70,8 +70,9 @@
     <div class="main-header">
         {{-- Logo: coloca tu logo en public/logo.png --}}
         <!-- <img src="{{ public_path('logo.png') }}" class="logo" alt="Logo"> -->
-        <div class="titulo">FORMATO DE FICHA DE LEVANTAMIENTO DE INFORMACIÓN</div>
-        <div class="subtitulo">INVENTARIO PATRIMONIAL 2025</div>
+        <div class="titulo">FORMATO DE FICHA DE LEVANTAMIENTO DE INFORMACIÓN <br>
+            <span class="subtitulo">INVENTARIO PATRIMONIAL 2025<span>
+        </div><br>
     </div>
     <div class="datos">
         <table class="info-table">
@@ -126,7 +127,7 @@
         </tbody>
     </table>
     <div style="margin: 10px 0; border-top: 1px solid #333; font-size: 11px; line-height: 1.4;">
-        <p style="margin-bottom: 10px;"><strong>DECLARACIÓN DE RESPONSABILIDAD:</strong></p>
+        <!-- <p style="margin-bottom: 10px;"><strong>DECLARACIÓN DE RESPONSABILIDAD:</strong></p> -->
         
         <ul style="margin: 0 0 15px 0; padding-left: 20px; line-height: 1.4; font-size: 11px;">
             <li style="">
