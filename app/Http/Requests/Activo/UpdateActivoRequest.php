@@ -11,8 +11,8 @@ class UpdateActivoRequest extends StoreActivoRequest
     public function rules()
     {
         return [
-            'codigo' => 'sometimes|string|max:50|unique:activos,codigo,'.$this->activo->id,
-            'cod_toma'=>'nullable|string|max:12|unique:activos,cod_toma,'.$this->activo->id,
+            'codigo' => 'sometimes|string|max:20|unique:activos,codigo,'.$this->activo->id,
+            'cod_toma'=>'nullable|string|max:12',
             'denominacion' => 'sometimes|string|max:255',
             'descripcion' => 'nullable|string',
             //'catalogo_id' => 'sometimes|exists:catalogo_bienes,id',

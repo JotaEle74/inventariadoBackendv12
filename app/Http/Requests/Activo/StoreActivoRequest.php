@@ -16,8 +16,9 @@ class StoreActivoRequest extends FormRequest
     public function rules()
     {
         return [
-            'codigo' => 'required|string|max:12|unique:activos,codigo',
-            'cod_toma'=>'nullable|string|max:12|unique:activos,cod_toma',
+            'codigo' => 'required|string|max:20|unique:activos,codigo',
+            'cod_toma'=>'nullable|string|max:12',
+            //'cod_toma'=>'nullable|string|max:12|unique:activos,cod_toma',
             'denominacion' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             //'catalogo_id' => 'required|exists:catalogo_bienes,id',

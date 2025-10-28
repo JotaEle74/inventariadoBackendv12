@@ -3255,3 +3255,5 @@ class UsuariosSeeder extends Seeder
         $this->command->info(count($usuarios).' usuarios insertados correctamente.');
     }
 }
+
+

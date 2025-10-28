@@ -62,16 +62,15 @@
 </head>
 <body>
     <header>
-        <p class="page-title headerleft" style="font-size: 10px;">UNIVERSIDAD NACIONAL DEL ALTIPLANO <br><span style="margin-top: -26px; display: inline-block;">Oficina de control de patrimonio</span></p>
+        <p class="page-title headerleft" style="font-size: 10px;">UNIVERSIDAD NACIONAL DEL ALTIPLANO</p>
         <span class="page-number headerright"></span>
     </header>
-
     <main>
     <div class="main-header">
         {{-- Logo: coloca tu logo en public/logo.png --}}
         <!-- <img src="{{ public_path('logo.png') }}" class="logo" alt="Logo"> -->
         <div class="titulo">FORMATO DE FICHA DE LEVANTAMIENTO DE INFORMACIÓN <br>
-            <span class="subtitulo">INVENTARIO PATRIMONIAL 2025<span>
+            <span class="subtitulo">INVENTARIO 2025<span>
         </div><br>
     </div>
     <div class="datos">
@@ -95,13 +94,13 @@
                 <th width="30%">Denominación</th>
                 <th width="4%">Marca</th>
                 <th width="4%">Modelo</th>
-                <th width="3%">Tipo</th>
+                <!-- <th width="3%">Tipo</th> -->
                 <!-- <th width="4%">Color</th> -->
                 <th width="4%">Serie/Dimensiones</th>
-                <!-- <th width="2%">Sit</th> -->
+                <th width="2%">Sit</th>
                 <th width="3%">Estado</th>
                 <th width="2%">item</th>
-                <th width="3%">N° toma</th>
+                <!-- <th width="3%">N° toma</th> -->
                 <th>Observación</th>
             </tr>
         </thead>
@@ -109,18 +108,22 @@
             @foreach($activos as $activo)
                 <tr class="{{ $activo->condicion === 'N' ? 'highlight' : '' }}">
                     <td class="text-center">{{ $total+$loop->iteration }}</td>
-                    <td>{{ $activo->codigo }}</td>
+                    <td>
+                      {{ str_contains($activo->codigo, '->') 
+                          ? explode('->', $activo->codigo)[0] 
+                          : $activo->codigo }}
+                    </td>
                     <td>{{ $activo->denominacion }}</td>
                     <td>{{ $activo->marca }}</td>
                     <td>{{ $activo->modelo }}</td>
-                    <td>{{ $activo->tipo }}</td>
+                    <!-- <td>{{ $activo->tipo }}</td> -->
                     <!-- <td>{{ $activo->color }}</td> -->
                     <td>{{ $activo->numero_serie ? $activo->numero_serie : $activo->dimension }}</td>
                     <!-- <td>{{ $activo->condicion }}</td> -->
+                    <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td>
                     <td>{{ $activo->condicion }}</td>
-                    <!-- <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td> -->
                     <td>{{ $activo->aux_id }}</td>
-                    <td>{{ $activo->cod_toma }}</td>
+                    <!-- <td>{{ $activo->cod_toma }}</td> -->
                     <td>{{ $activo->descripcion }}</td>
                 </tr>
             @endforeach
