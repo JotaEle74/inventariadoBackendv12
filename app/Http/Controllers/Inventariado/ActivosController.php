@@ -321,17 +321,29 @@ class ActivosController extends BaseController
     public function reporteinventario(Request $request)
     {
         $activos=DB::table('activo_user as au')
+        ->join('activos as a', 'au.activo_id', '=', 'a.id')
+        ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+        ->join('users as r', 'a.responsable_id', '=', 'r.id')
+        ->where('au.report', true)
         ->select(
             DB::raw('MAX(au.id) as aux_ids'),
             'au.activo_id as au_a_id',
             'a.id as a_id',
-            'au.grupo as au_grupo'
+            'au.grupo as au_grupo',
+            'ar.id as ar_id',
+            'r.id as r_id',
         )
-        ->join('activos as a', 'au.activo_id', '=', 'a.id')
-        ->where('au.report', false)
-        ->groupBy('au.activo_id', 'a.id', 'au.grupo')
-        ->orderBy('au.id');
-        return $activos->get();
+        ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id')
+        ->orderBy('au.id')
+        ->orderBy('ar.id')
+        ->get();
+        $agrupoado=$activos->groupBy([
+            'r_id',
+            function($item){
+                return $item->ar_id;
+            }
+        ]);
+        return $agrupoado;
     }
     public function reportepdf(Request $request)
     {
