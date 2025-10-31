@@ -345,6 +345,18 @@ class ActivosController extends BaseController
         ]);
         return $agrupoado;
     }
+    public function habilitar(Request $request)
+    {
+        DB::table('activo_user')
+            ->where('activo_id', $request->id)
+            ->update(['report' => 0]);
+
+        return response()->json([
+            'status'=>true,
+            'message'=>'Registros habilitados correctamente',
+            'data'=>[]
+        ]);
+    }
     public function reportepdf(Request $request)
     {
         $user=User::find($request->id);
