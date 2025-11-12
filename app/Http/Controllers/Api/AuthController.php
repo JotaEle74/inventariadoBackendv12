@@ -205,7 +205,8 @@ class AuthController extends Controller
             return $this->errorResponse('Usuario no autenticado', [], 401);
         }
         
-        $usuario->activeSessions = collect([]);
+        //$usuario->activeSessions = collect([]);
+        $usuario->load(['activeSessions', 'oficinas']);
         return $this->successResponse([
             'usuario' => $usuario
         ], 'Perfil de usuario obtenido correctamente');

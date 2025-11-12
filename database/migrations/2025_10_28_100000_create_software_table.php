@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('software', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo', 50)->unique();
+            $table->string('codigo', 50)->nullable();
             $table->enum('tipo', ['desarrollo_interno', 'licencia_terceros', 'red_social']);
             $table->string('nombre');
             $table->text('descripcion')->nullable();
@@ -40,7 +40,10 @@ return new class extends Migration
             $table->string('plataforma', 100)->nullable();
             $table->string('url_perfil')->nullable();
             $table->string('correo_institucional')->nullable();
-
+            $table->string('version')->nullable();
+            $table->string('user_id_two');
+            $table->string('codigoA');
+            $table->string('denominacion');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Inventariado\Area;
 use PDF;
+use Illuminate\Support\Facades\Validator;
 class ActivosController extends BaseController
 {
     use ExportsAssets;
@@ -92,6 +93,7 @@ class ActivosController extends BaseController
             }
 
             if($request->per_page === null){
+                $query->has('users');
                 $activos = $query->get();
             }
             else {
@@ -111,109 +113,39 @@ class ActivosController extends BaseController
             $user = $request->user();
             $isRestrictedUser = $user && ($user->hasRole('responsable_departamento') || $user->hasRole('usuario_consulta'));
 
-            $activosQuery = DB::table('activos');
-            $movimientosQuery = DB::table('movimientos');
-            $oficinasQuery = DB::table('oficinas');
-            $usersQuery = DB::table('users');
-
-            if ($isRestrictedUser) {
-                $activosQuery->where('responsable_id', $user->id);
-
-                $movimientosQuery->where(function ($query) use ($user) {
-                    $query->where('responsable_origen_id', $user->id)
-                          ->orWhere('responsable_destino_id', $user->id);
-                });
-
-                $oficinaIds = $user->oficinas()->pluck('oficinas.id');
-                $oficinasQuery->whereIn('id', $oficinaIds);
-
-                $userIdsInSameOffice = DB::table('oficina_user')
-                                        ->whereIn('oficina_id', $oficinaIds)
-                                        ->pluck('user_id')
-                                        ->unique();
-                $usersQuery->whereIn('id', $userIdsInSameOffice);
-            }
-
-            $totalActivos = $activosQuery->count();
-
-            $totalOficinas = $oficinasQuery->count();
-
-            $totalUsuarios = $usersQuery->count();
-
-            $activosPorEstado = (clone $activosQuery)
-                ->select('estado', DB::raw('count(*) as total'))
-                ->groupBy('estado')
-                ->get()
-                ->pluck('total', 'estado');
-
-            $activosPorCategoria = (clone $activosQuery)
-                ->join('catalogo_bienes', 'activos.catalogo_id', '=', 'catalogo_bienes.id')
-                ->select('catalogo_bienes.denominacion', DB::raw('count(activos.id) as total'))
-                ->groupBy('catalogo_bienes.denominacion')
-                ->orderByDesc('total')
-                ->limit(15)
-                ->get()
-                ->pluck('total', 'denominacion');
-
-            $activosPorCondicion = (clone $activosQuery)
-                ->select('condicion', DB::raw('count(*) as total'))
-                ->groupBy('condicion')
-                ->get()
-                ->pluck('total', 'condicion');
-
-            // Activos agregados recientemente (últimos 30 días)
-            $activosRecientes = (clone $activosQuery)
-                ->where('created_at', '>=', now()->subDays(30))
-                ->count();
-
-            // Total de movimientos
-            $totalMovimientos = $movimientosQuery->count();
-
-            // Movimientos pendientes o en proceso
-            $movimientosPendientes = (clone $movimientosQuery)
-                ->whereIn('estado', ['pendiente', 'en_entrega'])
-                ->count();
-
-            $meses = [];
-            for ($i = 5; $i >= 0; $i--) {
-                $date = now()->subMonths($i);
-                $meses[$date->locale('es')->translatedFormat('F Y')] = 0;
-            }
-
-            $movimientosData = (clone $movimientosQuery)
-                ->select(
-                    DB::raw("DATE_FORMAT(fecha_movimiento, '%Y-%m') as month_year"),
-                    DB::raw('count(*) as total')
-                )
-                ->where('fecha_movimiento', '>=', now()->subMonths(5)->startOfMonth())
-                ->groupBy('month_year')
-                ->get();
-
-            foreach ($movimientosData as $data) {
-                $date = \Carbon\Carbon::createFromFormat('Y-m', $data->month_year)->locale('es');
-                $key = $date->translatedFormat('F Y');
-                $meses[$key] = (int) $data->total;
-            }
-
+            $activosPorDia = DB::table('activo_user as au')
+            ->select(DB::raw('DATE(au.fecha) as fecha'), DB::raw('COUNT(DISTINCT au.activo_id) as total'))
+            ->groupBy(DB::raw('DATE(au.fecha)'))
+            ->orderBy(DB::raw('DATE(au.fecha)'), 'asc')
+            ->get();
+            $activosPorGrupoDia = DB::table('activo_user as au')
+            ->select(
+                DB::raw('DATE(au.fecha) as fecha'),
+                'au.grupo',
+                DB::raw('COUNT(DISTINCT au.activo_id) as total')
+            )
+            ->whereDate('au.fecha', today())
+            ->whereNotNull('au.grupo') 
+            ->groupBy(DB::raw('DATE(au.fecha)'), 'au.grupo')
+            ->orderBy('au.grupo')
+            ->get();
+            $activosPorOficina = DB::table('activos as a')
+            ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+            ->join('oficinas as of', 'ar.oficina_id', '=', 'of.id') // corregido
+            ->leftJoin('activo_user as au', 'a.id', '=', 'au.activo_id') // left join para incluir los no registrados
+            ->select(
+                'of.denominacion',
+                DB::raw('COUNT(a.id) as total_activos'),
+                DB::raw('SUM(CASE WHEN au.report = 1 THEN 1 ELSE 0 END) as registrados'),
+                DB::raw('SUM(CASE WHEN au.report IS NULL OR au.report = 0 THEN 1 ELSE 0 END) as faltantes')
+            )
+            ->groupBy('of.denominacion')
+            ->orderBy('of.denominacion')
+            ->get();
             $dashboardData = [
-                'total_activos' => $totalActivos,
-                'total_oficinas' => $totalOficinas,
-                'total_usuarios' => $totalUsuarios,
-                'activos_por_estado' => [
-                    'activos' => $activosPorEstado['A'] ?? 0,
-                    'inactivos' => $activosPorEstado['I'] ?? 0,
-                ],
-                'activos_por_categoria' => $activosPorCategoria,
-                'activos_por_condicion' => [
-                    'nuevo' => $activosPorCondicion['N'] ?? 0,
-                    'bueno' => $activosPorCondicion['B'] ?? 0,
-                    'regular' => $activosPorCondicion['R'] ?? 0,
-                    'malo' => $activosPorCondicion['M'] ?? 0,
-                ],
-                'activos_recientes' => $activosRecientes,
-                'total_movimientos' => $totalMovimientos,
-                'movimientos_pendientes' => $movimientosPendientes,
-                'movimientos_ultimos_6_meses' => $meses,
+                'activosPorDia'=>$activosPorDia,
+                'activosPorGrupoDia'=>$activosPorGrupoDia,
+                'activosPorOficina'=>$activosPorOficina
             ];
 
             return $this->successResponse($dashboardData, 'Datos del dashboard obtenidos exitosamente.');
@@ -231,7 +163,7 @@ class ActivosController extends BaseController
             Log::info('Datos antes de la inserción:', $data);
             $activo = Activo::create($data);
             $user = $request->user();
-            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo]);
+            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo, 'user_id_two'=>$request->user_id_two]);
             DB::commit();
             return $this->successResponse(
                 new ActivoResource($activo->fresh()),
@@ -266,7 +198,7 @@ class ActivosController extends BaseController
             $validatedData = $request->validated();
             $activo->update($validatedData);
             $user = $request->user();
-            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo]);
+            $user->activos()->attach($activo->id, ['fecha'=> now(), 'grupo'=>$user->grupo, 'user_id_two'=>$request->user_id_two]);
             $activo->save();
             DB::commit();
             return $this->successResponse(
@@ -317,39 +249,257 @@ class ActivosController extends BaseController
             return $this->handleException($e);
         }
     }
-
+    public function historial(Request $request)
+    {
+        try {
+            $user=User::find($request->id);
+            $historial = DB::table('activo_user as au')
+            ->select(
+                'u.name',
+                'ar.aula',
+                'au.grupo',
+                DB::raw('DATE(au.fecha) as fecha'),
+                DB::raw('COUNT(au.activo_id) as total_activos')
+            )
+            ->join('activos as a', 'au.activo_id', '=', 'a.id')
+            ->join('users as u', 'a.responsable_id', '=', 'u.id')
+            ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+            ->where('au.report', true)
+            ->where('u.id', $request->user_id)
+            ->where('ar.id', $request->area_id)
+            ->groupBy('u.name', 'ar.aula', 'au.grupo', DB::raw('DATE(au.fecha)'))
+            ->orderBy(DB::raw('DATE(au.fecha)'), 'desc');
+            //->where();
+            return $historial->get();
+        } catch (e) {
+            Log::error('Error al generar datos del dashboard: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
+    }
     public function reporteinventario(Request $request)
     {
+        $rules = [
+            'responsable_id' => 'required|integer|exists:users,id',
+            'area_id'        => 'required|integer|exists:areas,id',
+            'id'        => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors'  => $validator->errors()->toArray()
+            ], 422);
+        }
+        $user=User::find($request->id);
+        $today=date('Y-m-d');
         $activos=DB::table('activo_user as au')
         ->join('activos as a', 'au.activo_id', '=', 'a.id')
         ->join('areas as ar', 'a.area_id', '=', 'ar.id')
         ->join('users as r', 'a.responsable_id', '=', 'r.id')
-        ->where('au.report', true)
+        ->where('au.report', false)
+        ->where('a.responsable_id', $request->responsable_id)
+        ->where('a.area_id', $request->area_id)
+        //->where('au.fecha', date('Y-m-d'))
+        ->where('au.user_id', $user->id)
+        ->whereIn('au.id', function ($query) {
+            $query->select(DB::raw('MAX(id)'))
+                  ->from('activo_user')
+                  ->groupBy('activo_id');
+        })
+        //->where(function($query) use ($today) {
+        //    $query->where(function($q) use ($today) {
+        //        $q->where('au.report', false); // caso report = false, siempre incluir
+        //    })
+        //    ->orWhere(function($q) use ($today) {
+        //        $q->where('au.report', true)
+        //          ->whereDate('au.fecha', $today); // report = true solo si es hoy
+        //    });
+        //})
         ->select(
-            DB::raw('MAX(au.id) as aux_ids'),
+            DB::raw('MAX(au.id) as aux_id'),
             'au.activo_id as au_a_id',
+            'au.fecha as fecha_registro',
+            'au.report',
+            'au.user_id_two',
+            'au.grupo as grupo',
             'a.id as a_id',
-            'au.grupo as au_grupo',
+            'a.codigo',
+            'a.denominacion',
+            'a.marca',
+            'a.modelo',
+            'a.tipo',
+            'a.numero_serie',
+            'a.dimension',
+            'a.estado',
+            'a.condicion',
+            'a.descripcion',
             'ar.id as ar_id',
+            'ar.aula',
+            'ar.oficina_id',
             'r.id as r_id',
+            'r.dni as r_dni',
+            'r.name as r_name',
+            'au.item'
         )
-        ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id')
-        ->orderBy('au.id')
-        ->orderBy('ar.id')
-        ->get();
-        $agrupoado=$activos->groupBy([
-            'r_id',
-            function($item){
-                return $item->ar_id;
-            }
+        ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id', 'a.codigo', 'a.denominacion',
+        'a.marca', 'a.modelo', 'a.tipo', 'au.user_id_two',
+        'a.numero_serie', 'a.dimension', 'a.estado',
+        'a.condicion', 'a.descripcion', 'ar.aula',
+        'ar.oficina_id', 'r.dni', 'r.name',
+        'au.fecha', 'au.report', 'au.item')
+        ->orderByRaw('ISNULL(au.item), au.item ASC');
+        //->orderBy('au.item');
+        //->orderBy('ar.id')
+        $user_two=null;
+        if($request->user_id_two){
+            $activos->where('au.user_id_two', $request->user_id_two);
+            $user_two=User::find($request->user_id_two);
+        }
+        else{
+            $activos->whereNull('au.user_id_two');
+        }
+        $activos=$activos->get();
+        $area=Area::find($request->area_id);
+        $total = DB::table('activo_user as au')
+        ->join('activos', 'au.activo_id', '=', 'activos.id')
+        ->join('areas', 'activos.area_id', '=', 'areas.id')
+        ->where('areas.oficina_id', $area->oficina_id)
+        ->where('au.report', true)
+        ->where('au.fecha', '!=', date('Y-m-d'))
+        ->where('au.grupo', $user->grupo)
+        ->count();
+        $index=1;
+        foreach($activos as $activo){
+            DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+            //if(!$activo->item){
+                DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+                $index++;
+            //}
+        }
+        if($activos->isEmpty()){
+            return response()->json([
+                'status'=>false,
+                'message'=>"Aun no tienes registros",
+                'data'=>[]
+            ]);
+        }
+        $pdf = PDF::loadView('pdf.reportev2', [
+            'activos' => $activos,
+            'area'=>$area,
+            'inventariador'=>$user,
+            'total'=>$total,
+            'user_two'=>$user_two
         ]);
-        return $agrupoado;
+        $pdf->setPaper('a4', 'landscape');
+        return $pdf->stream('reporete-' . '.pdf');
+    }
+    public function historialPdf(Request $request)
+    {
+        try {
+            $user=User::find($request->id);
+            $activos=DB::table('activo_user as au')
+            ->join('activos as a', 'au.activo_id', '=', 'a.id')
+            ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+            ->join('users as r', 'a.responsable_id', '=', 'r.id')
+            ->where('au.report', true)
+            ->where('a.responsable_id', $request->responsable_id)
+            ->where('a.area_id', $request->area_id)
+            ->whereDate('au.fecha', $request->fecha)
+            //->where(DB::raw('DATE(au.fecha)'), $request->fecha)
+            ->where('au.user_id', $user->id)
+            ->whereIn('au.id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                      ->from('activo_user')
+                      ->groupBy('activo_id');
+            })
+            ->select(
+                DB::raw('MAX(au.id) as aux_id'),
+                'au.activo_id as au_a_id',
+                'au.fecha as fecha_registro',
+                'au.report',
+                'au.user_id_two',
+                'au.grupo as grupo',
+                'a.id as a_id',
+                'a.codigo',
+                'a.denominacion',
+                'a.marca',
+                'a.modelo',
+                'a.tipo',
+                'a.numero_serie',
+                'a.dimension',
+                'a.estado',
+                'a.condicion',
+                'a.descripcion',
+                'ar.id as ar_id',
+                'ar.aula',
+                'ar.oficina_id',
+                'r.id as r_id',
+                'r.dni as r_dni',
+                'r.name as r_name',
+                'au.item'
+            )
+            ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id', 'a.codigo', 'a.denominacion',
+            'a.marca', 'a.modelo', 'a.tipo', 'au.user_id_two',
+            'a.numero_serie', 'a.dimension', 'a.estado',
+            'a.condicion', 'a.descripcion', 'ar.aula',
+            'ar.oficina_id', 'r.dni', 'r.name',
+            'au.fecha', 'au.report', 'au.item')
+            ->orderByRaw('ISNULL(au.item), au.item ASC');
+            $user_two=null;
+            if($request->user_id_two){
+                $activos->where('au.user_id_two', $request->user_id_two);
+                $user_two=User::find($request->user_id_two);
+            }
+            else{
+                $activos->whereNull('au.user_id_two');
+            }
+            $activos=$activos->get();
+            $area=Area::find($request->area_id);
+            $total = DB::table('activo_user as au')
+            ->join('activos', 'au.activo_id', '=', 'activos.id')
+            ->join('areas', 'activos.area_id', '=', 'areas.id')
+            ->where('areas.oficina_id', $area->oficina_id)
+            ->where('au.report', true)
+            ->where('au.fecha', '!=', date('Y-m-d'))
+            ->where('au.grupo', $user->grupo)
+            ->count();
+            $index=1;
+            foreach($activos as $activo){
+                //DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+                if(!$activo->item){
+                    DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+                    $index++;
+                }
+            }
+            if($activos->isEmpty()){
+                return response()->json([
+                    'status'=>false,
+                    'message'=>"Aun no tienes registros",
+                    'data'=>[]
+                ]);
+            }
+            $pdf = PDF::loadView('pdf.reportev2', [
+                'activos' => $activos,
+                'area'=>$area,
+                'inventariador'=>$user,
+                'total'=>$total,
+                'user_two'=>$user_two
+            ]);
+            $pdf->setPaper('a4', 'landscape');
+            return $pdf->stream('reporete-' . '.pdf');
+        } catch (e) {
+            Log::error('Error al generar datos del dashboard: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
     }
     public function habilitar(Request $request)
     {
         DB::table('activo_user')
             ->where('activo_id', $request->id)
-            ->update(['report' => 0]);
+            //->update(['report' => 0]);
+            ->delete();
 
         return response()->json([
             'status'=>true,
@@ -359,7 +509,80 @@ class ActivosController extends BaseController
     }
     public function reportepdf(Request $request)
     {
+        $rules = [
+            'responsable_id' => 'required|integer|exists:users,id',
+            'area_id'        => 'required|integer|exists:areas,id',
+            'id'        => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error de validación',
+                'errors'  => $validator->errors()->toArray()
+            ], 422);
+        }
         $user=User::find($request->id);
+        $activos=DB::table('activo_user as au')
+        ->join('activos as a', 'au.activo_id', '=', 'a.id')
+        ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+        ->join('users as r', 'a.responsable_id', '=', 'r.id')
+        ->where('au.report', false)
+        ->where('a.responsable_id', $request->responsable_id)
+        ->where('a.area_id', $request->area_id)
+        //->where('au.fecha', date('Y-m-d'))
+        ->where('au.user_id', $user->id)
+        ->whereIn('au.id', function ($query) {
+            $query->select(DB::raw('MAX(id)'))
+                  ->from('activo_user')
+                  ->groupBy('activo_id');
+        })
+        //->where(function($query) use ($today) {
+        //    $query->where(function($q) use ($today) {
+        //        $q->where('au.report', false); // caso report = false, siempre incluir
+        //    })
+        //    ->orWhere(function($q) use ($today) {
+        //        $q->where('au.report', true)
+        //          ->whereDate('au.fecha', $today); // report = true solo si es hoy
+        //    });
+        //})
+        ->select(
+            DB::raw('MAX(au.id) as aux_id'),
+            'au.activo_id as au_a_id',
+            'au.fecha as fecha_registro',
+            'au.user_id_two',
+            'a.id as a_id',
+            'a.codigo',
+            'a.denominacion',
+            'a.marca',
+            'a.modelo',
+            'a.tipo',
+            'a.numero_serie',
+            'a.dimension',
+            'a.estado',
+            'a.condicion',
+            'a.descripcion',
+            'r.id as r_id',
+            'r.dni as r_dni',
+            'r.name as r_name'
+        )
+        ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id', 'a.codigo', 'a.denominacion',
+        'a.marca', 'a.modelo', 'a.tipo', 'au.user_id_two',
+        'a.numero_serie', 'a.dimension', 'a.estado',
+        'a.condicion', 'a.descripcion', 'ar.aula',
+        'ar.oficina_id', 'r.dni', 'r.name',
+        'au.fecha', 'au.report', 'au.item')
+        ->orderByRaw('ISNULL(au.item), au.item ASC');
+        //->orderBy('au.item');
+        //->orderBy('ar.id');
+        if($request->user_id_two){
+            $activos->where('au.user_id_two', $request->user_id_two);
+        }
+        else{
+            $activos->whereNull('au.user_id_two');
+        }
+        return $activos->get();
         $sub = DB::table('activo_user')
             ->join('activos', 'activo_user.activo_id', '=', 'activos.id')
             ->join('areas', 'activos.area_id', '=', 'areas.id')
@@ -408,12 +631,12 @@ class ActivosController extends BaseController
         }
         $area=Area::find($activos[0]->area_id);
         $pdf = PDF::loadView('pdf.reporte', [
-                'activos' => $activos,
-                'area'=>$area,
-                'inventariador'=>$user,
-                'total'=>$total
-            ]);
-            $pdf->setPaper('a4', 'landscape');
+            'activos' => $activos,
+            'area'=>$area,
+            'inventariador'=>$user,
+            'total'=>$total
+        ]);
+        $pdf->setPaper('a4', 'landscape');
         return $pdf->stream('reporete-' . '.pdf');
     }
 }

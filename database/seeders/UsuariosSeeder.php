@@ -3246,7 +3246,7 @@ class UsuariosSeeder extends Seeder
             User::create([
                 'name' => $usuario[1],
                 'dni' => $usuario[0],
-                'email' => $usuario[0].'@una.edu.pe', // Email único basado en DNI
+                'email' => $usuario[0].'@unap.edu.pe', // Email único basado en DNI
                 'email_verified_at' => now(),
                 'password' => Hash::make($usuario[0]), // Contraseña = DNI encriptado
                 'role_id' => $adminRole->id,

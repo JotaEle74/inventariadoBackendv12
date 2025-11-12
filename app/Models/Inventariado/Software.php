@@ -20,7 +20,8 @@ class Software extends Model
         'codigo', 'tipo', 'nombre', 'descripcion', 'responsable_id', 'area_id',
         'estado', 'notas', 'url_acceso', 'tecnologias', 'ubicacion_servidor',
         'clave_licencia', 'tipo_licencia', 'cantidad_puestos', 'fecha_compra',
-        'fecha_vencimiento', 'plataforma', 'url_perfil', 'correo_institucional'
+        'fecha_vencimiento', 'plataforma', 'url_perfil', 'correo_institucional',
+        'version', 'user_id_two', 'codigoA', 'denominacion', 'inventariador_id'
     ];
 
     protected $casts = [

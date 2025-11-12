@@ -16,7 +16,9 @@ return new class extends Migration
             $table->boolean('report')->default(false);
             $table->string('grupo')->nullable();
             //$table->string('counters')->nullable();
-            $table->date('fecha');
+            //$table->date('fecha');
+            $table->timestamp('fecha');
+            $table->string('user_id_two');
             $table->integer('item')->nullable();
             $table->foreignId('activo_id')->constrained('activos')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');

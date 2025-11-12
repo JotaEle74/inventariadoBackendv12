@@ -23,9 +23,11 @@ class StoreSoftwareRequest extends FormRequest
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'responsable_id' => 'required|exists:users,id',
+            'user_id_two'=>'nullable|integer',
             'area_id' => 'required|exists:areas,id',
             'estado' => 'required|string|max:50',
             'notas' => 'nullable|string',
+            'inventariador_id'=>'nullable|integer'
         ];
 
         if ($tipo === 'desarrollo_interno') {
@@ -42,7 +44,10 @@ class StoreSoftwareRequest extends FormRequest
                 'fecha_compra' => 'nullable|date',
                 'fecha_vencimiento' => 'nullable|date|after_or_equal:fecha_compra',
                 'activos_asignados' => 'nullable|array',
-                'activos_asignados.*' => 'exists:activos,id' // Validar que los IDs de activos existan
+                'activos_asignados.*' => 'exists:activos,id', // Validar que los IDs de activos existan
+                'version'=>'nullable|string',
+                'codigoA'=>'nullable|string',
+                'denominacion'=>'nullable|string'
             ]);
         } elseif ($tipo === 'red_social') {
             $rules = array_merge($rules, [

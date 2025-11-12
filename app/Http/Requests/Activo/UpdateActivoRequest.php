@@ -22,7 +22,7 @@ class UpdateActivoRequest extends StoreActivoRequest
             'dimension' => 'nullable|string|max:100',
             'aula'=>'nullable|string|max:10',
             'color' => 'nullable|string|max:100',
-            'fecha_adquisicion' => 'sometimes|date',
+            'fecha_adquisicion' => 'nullable',
             'valor_inicial' => 'sometimes|numeric|min:0',
             'estado' => 'sometimes|string|in:activo,inactivo',
             'condicion' => 'sometimes|string|in:nuevo,bueno,regular,malo',

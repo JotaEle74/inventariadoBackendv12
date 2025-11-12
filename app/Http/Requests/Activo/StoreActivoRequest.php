@@ -29,7 +29,7 @@ class StoreActivoRequest extends FormRequest
             'numero_serie' => 'nullable|string|max:100',
             'dimension'=>'nullable|string|max:100',
             'aula'=>'nullable|string|max:8',
-            'fecha_adquisicion' => 'required|date',
+            'fecha_adquisicion' => 'nullable',
             'valor_inicial' => 'nullable|numeric|min:0',
             'estado' => 'required|string|in:activo,inactivo',
             'condicion' => 'required|string|in:nuevo,bueno,regular,malo',

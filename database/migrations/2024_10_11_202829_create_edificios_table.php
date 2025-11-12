@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('edificios', function (Blueprint $table) {
             $table->id();
             $table->string('denominacion');
-            $table->string('codigo')->unique()->nullable();
+            $table->string('codigo')->nullable();
             $table->timestamps();
         });
     }

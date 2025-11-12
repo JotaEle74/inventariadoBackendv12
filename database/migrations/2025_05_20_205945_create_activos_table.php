@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('numero_serie')->nullable();
             $table->string('dimension')->nullable();
             $table->string('aula')->nullable();
-            $table->date('fecha_adquisicion');
+            $table->date('fecha_adquisicion')->nullable();
             $table->decimal('valor_inicial', 12, 2)->nullable();
             $table->enum('estado', ['A', 'I'])->default('A');
             $table->enum('condicion', ['N', 'B', 'R', 'M'])->default('N'); // Nuevo, Bueno, Regular, Malo
