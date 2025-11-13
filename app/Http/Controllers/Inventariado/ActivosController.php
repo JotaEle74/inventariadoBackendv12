@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\User;
 use App\Models\Inventariado\Area;
 use PDF;
+use Mpdf\Mpdf;
 use Illuminate\Support\Facades\Validator;
 class ActivosController extends BaseController
 {
@@ -385,17 +386,131 @@ class ActivosController extends BaseController
                 'data'=>[]
             ]);
         }
-        $pdf = PDF::loadView('pdf.reportev2', [
-            'activos' => $activos,
-            'area'=>$area,
-            'inventariador'=>$user,
-            'total'=>$total,
-            'user_two'=>$user_two
-        ]);
-        $pdf->setPaper('a4', 'landscape');
-        return $pdf->stream('reporete-' . '.pdf');
+        $htmlBody = view('pdf.historial_body', compact('activos'))->render();
+            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two'))->render();
+            $footer   = view('pdf.historial_footer', compact('activos', 'user', 'user_two'))->render();
+            $mpdf = new Mpdf([
+                'format' => 'A4-L',
+                'margin_top' => 45,
+                'margin_bottom' => 45,
+            ]);
+            $mpdf->SetHTMLHeader($header);
+            $mpdf->SetHTMLFooter($footer);
+            $mpdf->WriteHTML($htmlBody);
+            return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
+        //$pdf = PDF::loadView('pdf.reportev2', [
+        //    'activos' => $activos,
+        //    'area'=>$area,
+        //    'inventariador'=>$user,
+        //    'total'=>$total,
+        //    'user_two'=>$user_two
+        //]);
+        //$pdf->setPaper('a4', 'landscape');
+        //return $pdf->stream('reporete-' . '.pdf');
     }
     public function historialPdf(Request $request)
+    {
+        try {
+            $user=User::find($request->id);
+            $activos=DB::table('activo_user as au')
+            ->join('activos as a', 'au.activo_id', '=', 'a.id')
+            ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+            ->join('users as r', 'a.responsable_id', '=', 'r.id')
+            ->where('au.report', true)
+            ->where('a.responsable_id', $request->responsable_id)
+            ->where('a.area_id', $request->area_id)
+            ->whereDate('au.fecha', $request->fecha)
+            //->where(DB::raw('DATE(au.fecha)'), $request->fecha)
+            ->where('au.user_id', $user->id)
+            ->whereIn('au.id', function ($query) {
+                $query->select(DB::raw('MAX(id)'))
+                      ->from('activo_user')
+                      ->groupBy('activo_id');
+            })
+            ->select(
+                DB::raw('MAX(au.id) as aux_id'),
+                'au.activo_id as au_a_id',
+                'au.fecha as fecha_registro',
+                'au.report',
+                'au.user_id_two',
+                'au.grupo as grupo',
+                'a.id as a_id',
+                'a.codigo',
+                'a.denominacion',
+                'a.marca',
+                'a.modelo',
+                'a.tipo',
+                'a.numero_serie',
+                'a.dimension',
+                'a.estado',
+                'a.condicion',
+                'a.descripcion',
+                'ar.id as ar_id',
+                'ar.aula',
+                'ar.oficina_id',
+                'r.id as r_id',
+                'r.dni as r_dni',
+                'r.name as r_name',
+                'au.item'
+            )
+            ->groupBy('au.activo_id', 'a.id', 'au.grupo', 'r.id', 'ar.id', 'a.codigo', 'a.denominacion',
+            'a.marca', 'a.modelo', 'a.tipo', 'au.user_id_two',
+            'a.numero_serie', 'a.dimension', 'a.estado',
+            'a.condicion', 'a.descripcion', 'ar.aula',
+            'ar.oficina_id', 'r.dni', 'r.name',
+            'au.fecha', 'au.report', 'au.item')
+            ->orderByRaw('ISNULL(au.item), au.item ASC');
+            $user_two=null;
+            if($request->user_id_two){
+                $activos->where('au.user_id_two', $request->user_id_two);
+                $user_two=User::find($request->user_id_two);
+            }
+            else{
+                $activos->whereNull('au.user_id_two');
+            }
+            $activos=$activos->get();
+            $area=Area::find($request->area_id);
+            $total = DB::table('activo_user as au')
+            ->join('activos', 'au.activo_id', '=', 'activos.id')
+            ->join('areas', 'activos.area_id', '=', 'areas.id')
+            ->where('areas.oficina_id', $area->oficina_id)
+            ->where('au.report', true)
+            ->where('au.fecha', '!=', date('Y-m-d'))
+            ->where('au.grupo', $user->grupo)
+            ->count();
+            $index=1;
+            foreach($activos as $activo){
+                //DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+                if(!$activo->item){
+                    DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
+                    $index++;
+                }
+            }
+            if($activos->isEmpty()){
+                return response()->json([
+                    'status'=>false,
+                    'message'=>"Aun no tienes registros",
+                    'data'=>[]
+                ]);
+            }
+            $htmlBody = view('pdf.historial_body', compact('activos'))->render();
+            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two'))->render();
+            $footer   = view('pdf.historial_footer', compact('activos', 'user', 'user_two'))->render();
+            $mpdf = new Mpdf([
+                'format' => 'A4-L',
+                'margin_top' => 45,
+                'margin_bottom' => 45,
+            ]);
+            $mpdf->SetHTMLHeader($header);
+            $mpdf->SetHTMLFooter($footer);
+            $mpdf->WriteHTML($htmlBody);
+            return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
+        } catch (\Exception $e) {
+            Log::error('Error al generar datos del dashboard: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
+    }
+    public function historialPdfs(Request $request)
     {
         try {
             $user=User::find($request->id);
