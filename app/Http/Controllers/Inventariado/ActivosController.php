@@ -480,7 +480,7 @@ class ActivosController extends BaseController
             ->count();
             $index=1;
             foreach($activos as $activo){
-                //DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+                DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
                 if(!$activo->item){
                     DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
                     $index++;
@@ -582,7 +582,7 @@ class ActivosController extends BaseController
             ->count();
             $index=1;
             foreach($activos as $activo){
-                //DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
+                DB::table('activo_user')->where('id', $activo->aux_id)->update(['report' => true]);
                 if(!$activo->item){
                     DB::table('activo_user')->where('id', $activo->aux_id)->update(['item'=>$total+$index]);
                     $index++;
