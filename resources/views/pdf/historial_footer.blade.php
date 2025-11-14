@@ -9,8 +9,11 @@
         <tr>
             <td style="font-size: 10px;">
                 ______________________________<br>
-                RESPONSABLE:<br>
+                RESPONSABLE(S):<br>
                 {{ $activos[0]->r_dni ?? '' }} - {{ $activos[0]->r_name ?? '' }}
+                @if($user_two)
+                    <br>{{ $user_two->dni }} - {{ $user_two->name }}
+                @endif
             </td>
             <td style="font-size: 10px;">
                 ______________________________<br>

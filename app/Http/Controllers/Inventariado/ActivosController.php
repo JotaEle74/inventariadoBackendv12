@@ -8,6 +8,7 @@ use App\Http\Requests\Activo\UpdateActivoRequest;
 use App\Http\Resources\ActivoResource;
 use App\Http\Resources\MovimientoActivoResource;
 use App\Models\Inventariado\Activo;
+use App\Models\Inventariado\Software;
 use App\Traits\ExportsAssets;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +22,8 @@ use App\Models\Inventariado\Area;
 use PDF;
 use Mpdf\Mpdf;
 use Illuminate\Support\Facades\Validator;
+use App\Exports\ActivosExport;
+use Maatwebsite\Excel\Facades\Excel;
 class ActivosController extends BaseController
 {
     use ExportsAssets;
@@ -95,7 +98,9 @@ class ActivosController extends BaseController
 
             if($request->per_page === null){
                 $query->has('users');
-                $activos = $query->get();
+                $query->orderBy('id', 'desc');
+                $activos = $query->limit(1000)->get();
+                //$activos = $query->skip(10)->get();
             }
             else {
                 $perPage = $request->integer('per_page', 15);
@@ -302,22 +307,12 @@ class ActivosController extends BaseController
         ->where('au.report', false)
         ->where('a.responsable_id', $request->responsable_id)
         ->where('a.area_id', $request->area_id)
-        //->where('au.fecha', date('Y-m-d'))
         ->where('au.user_id', $user->id)
         ->whereIn('au.id', function ($query) {
             $query->select(DB::raw('MAX(id)'))
                   ->from('activo_user')
                   ->groupBy('activo_id');
         })
-        //->where(function($query) use ($today) {
-        //    $query->where(function($q) use ($today) {
-        //        $q->where('au.report', false); // caso report = false, siempre incluir
-        //    })
-        //    ->orWhere(function($q) use ($today) {
-        //        $q->where('au.report', true)
-        //          ->whereDate('au.fecha', $today); // report = true solo si es hoy
-        //    });
-        //})
         ->select(
             DB::raw('MAX(au.id) as aux_id'),
             'au.activo_id as au_a_id',
@@ -398,15 +393,6 @@ class ActivosController extends BaseController
             $mpdf->SetHTMLFooter($footer);
             $mpdf->WriteHTML($htmlBody);
             return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
-        //$pdf = PDF::loadView('pdf.reportev2', [
-        //    'activos' => $activos,
-        //    'area'=>$area,
-        //    'inventariador'=>$user,
-        //    'total'=>$total,
-        //    'user_two'=>$user_two
-        //]);
-        //$pdf->setPaper('a4', 'landscape');
-        //return $pdf->stream('reporete-' . '.pdf');
     }
     public function historialPdf(Request $request)
     {
@@ -753,5 +739,10 @@ class ActivosController extends BaseController
         ]);
         $pdf->setPaper('a4', 'landscape');
         return $pdf->stream('reporete-' . '.pdf');
+    }
+
+    public function exportActivos()
+    {
+        return Excel::download(new ActivosExport, 'activos.xlsx');
     }
 }

@@ -2,45 +2,63 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
+use Maatwebsite\Excel\Concerns\Exportable;
 
-class ActivosExport implements FromCollection, WithHeadings, WithStyles
+class ActivosExport implements FromQuery, WithHeadings, WithChunkReading
 {
-    protected $data;
+    use Exportable;
 
-    public function __construct($data)
+    public function query()
     {
-        $this->data = $data;
-    }
-
-    public function collection()
-    {
-        return $this->data;
+        return DB::table('activos as a')
+        ->select(
+            'a.codigo', 'a.denominacion', 'a.marca', 'a.modelo', 'a.numero_serie', 'a.piso', 'a.aula', 'a.descripcion', 'a.telefono', 'a.nombreInventariador',
+            DB::raw("CASE a.condicion 
+                        WHEN 'N' THEN 'nuevo' 
+                        WHEN 'B' THEN 'bueno' 
+                        WHEN 'R' THEN 'regular' 
+                        WHEN 'M' THEN 'malo' 
+                     END as condicion_nombre"),
+            DB::raw("CASE a.estado 
+                        WHEN 'activo' THEN 'U' 
+                        ELSE 'D' 
+                     END as estado_ud"),
+            'u.dni as usuario_dni',
+            'u.name as usuario_nombre',
+            'ar.codigo as area_codigo',
+            'ar.aula as area_aula',
+            'ofc.codigo as oficina_codigo',
+            'ofc.denominacion as oficina_denominacion',
+            'ed.codigo as edificio_codigo',
+            'ed.denominacion as edificio_denominacion',
+            'au.grupo',
+            'au.item',
+            'au.fecha'
+        )
+        ->join('users as u', 'a.responsable_id', '=', 'u.id')
+        ->join('areas as ar', 'a.area_id', '=', 'ar.id')
+        ->join('oficinas as ofc', 'ar.oficina_id', '=', 'ofc.id')
+        ->join('edificios as ed', 'a.edificio_id', '=', 'ed.id')
+        ->leftJoin('activo_user as au', 'a.id', '=', 'au.activo_id')
+        ->orderBy('a.id', 'asc');
     }
 
     public function headings(): array
     {
         return [
-            'Código',
-            'Nombre',
-            'Categoría',
-            'Ubicación',
-            'Responsable',
-            'Estado',
-            'Número de Serie',
-            'Costo',
-            'Fecha de Adquisición'
+            'Código', 'Denominación', 'Marca', 'Modelo', 'Número Serie', 'Piso', 'Aula',
+            'Descripción', 'Teléfono', 'Inventariador', 'Condición', 'Estado UD',
+            'DNI Usuario', 'Nombre Usuario', 'Código Área', 'Aula Área', 'Código Oficina',
+            'Denominación Oficina', 'Código Edificio', 'Edificio', 'Grupo', 'Item', 'Fecha'
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function chunkSize(): int
     {
-        return [
-            1 => ['font' => ['bold' => true]],
-            'A1:I1' => ['fill' => ['fillType' => 'solid', 'color' => ['rgb' => 'CCCCCC']]],
-        ];
+        return 1000;
     }
-} 
+}
