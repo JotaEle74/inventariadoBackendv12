@@ -117,4 +117,28 @@ class OficinaController extends BaseController
             return $this->handleException($e);
         }
     }
+    public function search(Request $request): JsonResponse
+    {
+        try {
+            $query = Oficina::query();
+
+            if ($request->has('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('denominacion', 'like', "%$search%")
+                        ->orWhere('codigo', 'like', "%$search%");
+                });
+                $oficinas = $query->orderBy('codigo')->take(4)->get();
+
+                return $this->successResponse(
+                    OficinaResource::collection($oficinas),
+                    'Búsqueda de oficinas realizada con éxito'
+                );
+            }
+
+        } catch (Exception $e) {
+            Log::error('Error al buscar oficinas: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
+    }
 }

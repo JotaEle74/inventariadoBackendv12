@@ -30,6 +30,9 @@ class UsersController extends Controller
                     ->orWhere('email', 'like', "%{$search}%");
             });
         }
+        if($request->has('usuario_type')){
+            $query->where('role_id', $request->usuario_type);
+        }
         $perPage = $request->integer('per_page', 15);
         $users = $query->paginate($perPage);
         return UserResource::Collection($users);

@@ -9,7 +9,7 @@
             </td>
             <td style="font-size: 10px; width: 50%;">
                 ______________________________<br>
-                <strong>RESPONSABLE:</strong><br>
+                <strong>Encargado de oficina:</strong><br>
                 DNI: {{ $responsable->dni ?? '' }}<br>
                 Nombre: {{ $responsable->name ?? '' }}
             </td>

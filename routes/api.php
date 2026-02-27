@@ -20,6 +20,7 @@ use App\Http\Controllers\Inventariado\DeclaracionController;
 use App\Http\Controllers\Inventariado\SoftwareController;
 use App\Http\Controllers\Api\UsuarioController;
 use App\Http\Controllers\Inventariado\EdificioController;
+use App\Http\Controllers\Inventariado\ConfiguracionController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1')->name('auth.register');
@@ -106,6 +107,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/historialpdf', [ActivosController::class, 'historialPdf']);
         Route::get('/inventariador', [ActivosController::class, 'inventariador']);
         Route::get('/export-activos', [ActivosController::class, 'exportActivos']);
+        Route::get('/reporteSoftwareOTI', [ActivosController::class, 'reporteSoftwareOTI']);
+        Route::get('/faltareporte', [ActivosController::class, 'faltaReporte']);
+        Route::get('/faltareportepdf', [ActivosController::class, 'faltaReportePdf']);
         Route::get('/{activo}', [ActivosController::class, 'show']);//->middleware('permission:activos.view');
         Route::put('/habilitar', [ActivosController::class, 'habilitar']);
         Route::put('/{activo}', [ActivosController::class, 'update']);
@@ -142,6 +146,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::prefix('auth/oficinas')->group(function () {
         Route::get('/', [OficinaController::class, 'index']);
         Route::post('/', [OficinaController::class, 'store']);//;->middleware('permission:configuracion.edit');
+        Route::get('/search', [OficinaController::class, 'search']);
         Route::get('/{oficina}', [OficinaController::class, 'show']);
         Route::put('/{oficina}', [OficinaController::class, 'update']);//->middleware('permission:configuracion.edit');
         Route::delete('/{oficina}', [OficinaController::class, 'destroy']);//->middleware('permission:configuracion.edit');
@@ -183,6 +188,8 @@ Route::prefix('auth/software')->group(function () {
     Route::get('/', [SoftwareController::class, 'index']);
     Route::post('/', [SoftwareController::class, 'store']);
     Route::get('/activo/{activo}', [SoftwareController::class, 'installed']);
+    Route::get('/reporteSoftware', [SoftwareController::class, 'reporteSoftware']);
+    Route::get('/reporteSoftwareOTI', [SoftwareController::class, 'reporteSoftwareOTI']);
     Route::get('/{software}', [SoftwareController::class, 'show']);
     Route::put('/{software}', [SoftwareController::class, 'update']);
     Route::delete('/{software}', [SoftwareController::class, 'destroy']);
@@ -213,3 +220,13 @@ Route::middleware(['auth:sanctum', 'verified', 'permission:reportes.view'])->gro
     // Route::get('/reportes/movimientos', [ReporteController::class, 'movimientos']);
     // Route::post('/reportes/export', [ReporteController::class, 'export'])->middleware('permission:reportes.export');
 }); 
+
+// CRUD endpoints for configuration settings
+Route::middleware(['auth:sanctum', 'verified'])->prefix('auth/configuracion')->group(function () {
+    Route::get('/', [ConfiguracionController::class, 'index']);
+    Route::post('/', [ConfiguracionController::class, 'store']);
+    // use route-model binding name so FormRequest can access the model
+    Route::get('/{configuracion}', [ConfiguracionController::class, 'show']);
+    Route::put('/{configuracion}', [ConfiguracionController::class, 'update']);
+    Route::delete('/{configuracion}', [ConfiguracionController::class, 'destroy']);
+});

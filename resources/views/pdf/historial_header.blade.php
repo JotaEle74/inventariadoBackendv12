@@ -1,8 +1,9 @@
 <div style="text-align: center;">
     <p><strong>UNIVERSIDAD NACIONAL DEL ALTIPLANO</strong></p>
     <div class="titulo">
-        FORMATO DE FICHA DE LEVANTAMIENTO DE INFORMACIÓN <br>
-        <span class="subtitulo">INVENTARIO 2025</span>
+        <span class="subtitulo">UNIDAD DE ABASTECIMIENTO - SUB UNIDAD DE PATRIMONIO</span><br>
+        ACTA DE VERIFICACIÓN DE BIENES MUEBLES
+        <!-- <span class="subtitulo">INVENTARIO 2025</span> -->
     </div>
     <table width="100%" style="font-size: 11px;">
         <tr>
@@ -13,9 +14,10 @@
                 @if($user_two)
                     <strong>RESPONSABLE:</strong> {{ $user_two->dni }} - {{ $user_two->name }}
                 @endif
+                <br>
             </td>
             <td style="text-align:right;">
-                Grupo: {{ $user->grupo ?? '' }}<br>
+                N° 001<br>
                 Fecha: {{ \Carbon\Carbon::parse($activos[0]->fecha_registro ?? now())->format('Y-m-d') }}<br>
                 Tipo de verificación: FÍSICA(X) DIGITAL( )
             </td>

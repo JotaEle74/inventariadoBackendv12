@@ -138,9 +138,9 @@
                         <tr>
                             <td><span class="info-label">Oficina: </span>{{ $movimiento->ubicacionOrigen ? $movimiento->ubicacionOrigen->denominacion : 'N/A' }} </td>
                         </tr>
-                        <tr>
+                        <!-- <tr>
                             <td><span class="info-label">Entidad: </span>{{ $movimiento->ubicacionOrigen && $movimiento->ubicacionOrigen->entidad ? $movimiento->ubicacionOrigen->entidad->denominacion : 'N/A' }}</td>
-                        </tr>
+                        </tr> -->
                     </table>
                 </td>
                 <td>
@@ -155,9 +155,9 @@
                         <tr>
                             <td><span class="info-label">Oficina: </span>{{ $movimiento->ubicacionDestino ? $movimiento->ubicacionDestino->denominacion : 'N/A' }} </td>
                         </tr>
-                        <tr>
+                        <!-- <tr>
                             <td><span class="info-label">Entidad: </span>{{ $movimiento->ubicacionDestino && $movimiento->ubicacionDestino->entidad ? $movimiento->ubicacionDestino->entidad->denominacion : 'N/A' }}</td>
-                        </tr>
+                        </tr> -->
                     </table>
                 </td>
             </tr>
@@ -183,16 +183,16 @@
                 @foreach($movimiento->movimientosActivos as $movimientoActivo)
                 <tr>
                     <td>{{ $movimientoActivo->activo->codigo }}</td>
-                    <td>{{ $movimientoActivo->activo->catalogo->denominacion }}</td>
+                    <td>{{ $movimientoActivo->activo->denominacion }}</td>
                     <td>{{ $movimientoActivo->activo->marca }}</td>
                     <td>{{ $movimientoActivo->activo->modelo }}</td>
                     <td>{{ $movimientoActivo->activo->numero_serie }}</td>
                     <td>
                         @if($movimientoActivo->ubicacionOrigen)
                             <div class="ubicacion-info">
-                                <div class="ubicacion-edificio">{{ $movimientoActivo->ubicacionOrigen->edificio }}</div>
+                                <!-- <div class="ubicacion-edificio">{{ $movimientoActivo->ubicacionOrigen->edificio }}</div> -->
                                 <div class="ubicacion-detalle">
-                                    Piso: {{ $movimientoActivo->ubicacionOrigen->piso }}, 
+                                    <!-- Piso: {{ $movimientoActivo->ubicacionOrigen->piso }},  -->
                                     Aula: {{ $movimientoActivo->ubicacionOrigen->aula }}
                                 </div>
                             </div>
@@ -203,9 +203,9 @@
                     <td>
                         @if($movimientoActivo->ubicacionDestino)
                             <div class="ubicacion-info">
-                                <div class="ubicacion-edificio">{{ $movimientoActivo->ubicacionDestino->edificio }}</div>
+                                <!-- <div class="ubicacion-edificio">{{ $movimientoActivo->ubicacionDestino->edificio }}</div> -->
                                 <div class="ubicacion-detalle">
-                                    Piso: {{ $movimientoActivo->ubicacionDestino->piso }}, 
+                                    <!-- Piso: {{ $movimientoActivo->ubicacionDestino->piso }},  -->
                                     Aula: {{ $movimientoActivo->ubicacionDestino->aula }}
                                 </div>
                             </div>

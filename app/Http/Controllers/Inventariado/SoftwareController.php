@@ -12,7 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Mpdf\Mpdf;
 class SoftwareController extends BaseController
 {
     public function index(Request $request): JsonResponse
@@ -231,6 +231,115 @@ class SoftwareController extends BaseController
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Error al actualizar software: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
+    }
+    public function reporteSoftware(Request $request)//: JsonResponse
+    {
+        try {
+            $query = DB::table('software as s')
+            ->join('areas as ar', 's.area_id', '=', 'ar.id')
+            ->join('oficinas as of', 'ar.oficina_id', '=', 'of.id')
+            ->select(
+                //DB::raw('MIN(s.id) as id'),
+                's.codigoA',
+                DB::raw('MIN(s.denominacion) as denominacion'),
+                DB::raw('MIN(of.id) as oficina_id'),
+                DB::raw('MIN(of.denominacion) as oficina'),
+                DB::raw('COUNT(*) as cantidad')
+            )
+            ->groupBy('s.codigoA');
+            if ($request->has('oficina_id')) {
+                $query->where('of.id', $request->oficina_id);
+            }
+            if ($request->has('tipo')) {
+                $query->where('tipo', $request->tipo);
+            }
+            $perPage = $request->integer('per_page', 15);
+            $software = $query->paginate($perPage);
+
+            return $this->successResponse(
+                $software,
+                'Reporte de software generado exitosamente'
+            );
+        } catch (Exception $e) {
+            Log::error('Error al generar reporte de software: ' . $e->getMessage());
+            return $this->handleException($e);
+        }
+    }
+    public function reporteSoftwareOTI(Request $request)
+    {
+        try {
+            $oficina = DB::table('oficinas')->where('id', $request->oficina_id)->first();
+
+            $softwareTerceros = DB::table('software as s')
+                ->where('s.tipo', 'licencia_terceros')
+                ->join('areas as ar', 's.area_id', '=', 'ar.id')
+                ->join('oficinas as of', 'ar.oficina_id', '=', 'of.id')
+                ->where('of.id', $request->oficina_id)
+                ->whereIn('s.tipo_licencia', ['volumen', 'Gratuita', 'Cuenta Microsoft', 'De pago (Suscripción)', 'Demo', 'Gratuita (GPL)', 'Controlador', 'Redistribuible', 'Cuenta'])
+                ->select(
+                    's.codigoA as codigo',
+                    's.denominacion',
+                    's.nombre',
+                    DB::raw('COALESCE(s.tipo_licencia, "-") as fuente'),
+                    DB::raw('COALESCE(s.notas, "-") as observaciones')
+                )
+                ->orderBy('s.codigoA')
+                ->get();
+            // Software internos (desarrollo_interno)
+            $softwareInternos = Software::where('tipo', 'desarrollo_interno')
+                ->where('area_id', '56')
+                //->where('responsable_id', $request->responsable_software_id)
+                ->select(
+                    'nombre',
+                    'denominacion',
+                    'estado',
+                    DB::raw('COALESCE(tecnologias, "-") as tecnologias')
+                )
+                ->orderBy('nombre')
+                ->get();
+
+            // Redes sociales (red_social)
+            $redesSociales = Software::where('tipo', 'red_social')
+                ->where('area_id', '56')
+                //->where('responsable_id', $request->responsable_software_id)
+                ->select(
+                    'nombre',
+                    DB::raw('COALESCE(descripcion, "-") as descripcion'),
+                    'estado',
+                    DB::raw('COALESCE(plataforma, "-") as plataforma')
+                )
+                ->orderBy('nombre')
+                ->get();
+
+            // Renderizar vistas
+            $htmlBody = view('pdf.software_report_body', compact('softwareTerceros', 'softwareInternos', 'redesSociales'))->render();
+            $header   = view('pdf.software_report_header', compact('oficina'))->render();
+            $footer   = view('pdf.software_report_footer')->render();
+
+            // Configurar mPDF
+            $mpdf = new Mpdf([
+                'format' => 'A4-L',
+                'margin_top' => 30,
+                'margin_bottom' => 15,
+                'margin_left' => 10,
+                'margin_right' => 10,
+            ]);
+
+            $mpdf->SetHTMLHeader($header);
+            $mpdf->SetHTMLFooter($footer);
+            //$mpdf->WriteHTML($htmlBody);
+            $htmlChunks = str_split($htmlBody, 5000);
+
+            foreach ($htmlChunks as $chunk) {
+                $mpdf->WriteHTML($chunk);
+            }
+
+            return response($mpdf->Output('', 'S'))->header('Content-Type', 'application/pdf');
+
+        } catch (\Exception $e) {
+            Log::error('Error al generar reporte de software OTI: ' . $e->getMessage());
             return $this->handleException($e);
         }
     }

@@ -4,10 +4,11 @@ namespace App\Models\Inventariado;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\User;
 class Activo extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes; 
     protected $table = 'activos';
     protected $fillable = [
         'codigo',
@@ -34,7 +35,8 @@ class Activo extends Model
         'declaracion',
         'dniInventariador',
         'nombreInventariador',
-        'telefono'
+        'telefono',
+        'update_user'
     ];
 
     protected $casts = [
@@ -114,6 +116,6 @@ class Activo extends Model
     }
     public function users()
     {
-        return $this->belongsToMany(User::class, 'activo_user')->withPivot('id', 'fecha', 'report', 'grupo', 'item', 'user_id_two');
+        return $this->belongsToMany(User::class, 'activo_user')->withPivot('id', 'fecha', 'report', 'grupo', 'item', 'user_id_two', 'update_user');
     }
 }

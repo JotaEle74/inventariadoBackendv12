@@ -7,6 +7,7 @@
             <th>Marca</th>
             <th>Modelo</th>
             <th>Serie/Dimensiones</th>
+            <th>Ambiente</th>
             <th>Sit</th>
             <th>Estado</th>
             <th>Item</th>
@@ -16,12 +17,13 @@
     <tbody>
         @foreach($activos as $i => $activo)
         <tr>
-            <td>{{ $activo->item ?? $i+1 }}</td>
+            <td>{{ $activo->item ?? $total+$i+1 }}</td>
             <td>{{ str_contains($activo->codigo, '->') ? explode('->', $activo->codigo)[0] : $activo->codigo }}</td>
             <td>{{ $activo->denominacion }}</td>
             <td>{{ $activo->marca }}</td>
             <td>{{ $activo->modelo }}</td>
             <td>{{ $activo->numero_serie ?: $activo->dimension }}</td>
+            <td>{{ $activo->ambiente }}</td>
             <td>{{ $activo->estado == 'A' ? 'U' : 'D' }}</td>
             <td>{{ $activo->condicion }}</td>
             <td>{{ $activo->aux_id }}</td>

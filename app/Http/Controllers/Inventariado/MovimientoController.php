@@ -24,8 +24,8 @@ class MovimientoController extends BaseController
     {
         try {
             $query = Movimiento::query()->with([
-                'usuario.oficinas.entidad',
-                'receptor.oficinas.entidad',
+                'usuario.oficinas',
+                'receptor.oficinas',
                 'autorizadoPor',
                 'movimientosActivos.activo',
                 'movimientosActivos.ubicacionOrigen',
@@ -122,8 +122,8 @@ class MovimientoController extends BaseController
             }
             // Cargar relaciones para la respuesta
             $movimiento->load([
-                'usuario.oficinas.entidad',
-                'receptor.oficinas.entidad',
+                'usuario.oficinas',
+                'receptor.oficinas',
                 'autorizadoPor',
                 'movimientosActivos.activo',
                 'movimientosActivos.ubicacionOrigen',
@@ -173,8 +173,8 @@ class MovimientoController extends BaseController
 
             return $this->successResponse(
                 new MovimientoResource($movimiento->fresh()->load([
-                    'usuario.oficinas.entidad',
-                    'receptor.oficinas.entidad',
+                    'usuario.oficinas',
+                    'receptor.oficinas',
                     'autorizadoPor',
                     'movimientosActivos.activo',
                     'movimientosActivos.ubicacionOrigen',
@@ -195,8 +195,8 @@ class MovimientoController extends BaseController
 
             return $this->successResponse(
                 new MovimientoResource($movimiento->fresh()->load([
-                    'usuario.oficinas.entidad',
-                    'receptor.oficinas.entidad',
+                    'usuario.oficinas',
+                    'receptor.oficinas',
                     'autorizadoPor',
                     'movimientosActivos.activo',
                     'movimientosActivos.ubicacionOrigen',
@@ -217,8 +217,8 @@ class MovimientoController extends BaseController
 
             return $this->successResponse(
                 new MovimientoResource($movimiento->fresh()->load([
-                    'usuario.oficinas.entidad',
-                    'receptor.oficinas.entidad',
+                    'usuario.oficinas',
+                    'receptor.oficinas',
                     'autorizadoPor',
                     'movimientosActivos.activo',
                     'movimientosActivos.ubicacionOrigen',
@@ -236,11 +236,11 @@ class MovimientoController extends BaseController
     {
         try {
             $movimiento->load([
-                'usuario.oficinas.entidad',
-                'receptor.oficinas.entidad',
+                'usuario.oficinas',
+                'receptor.oficinas',
                 'autorizadoPor',
-                'ubicacionOrigen.entidad',
-                'ubicacionDestino.entidad',
+                'ubicacionOrigen',
+                'ubicacionDestino',
                 'movimientosActivos.ubicacionOrigen',
                 'movimientosActivos.ubicacionDestino'
             ]);
@@ -252,7 +252,7 @@ class MovimientoController extends BaseController
             ]);
 
             // Configurar el PDF
-            $pdf->setPaper('a4', 'portrait');
+            $pdf->setPaper('a4', 'landscape');//portrait
             $pdf->setOption('margin-top', 10);
             $pdf->setOption('margin-right', 10);
             $pdf->setOption('margin-bottom', 10);

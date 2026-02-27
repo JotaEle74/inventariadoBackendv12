@@ -1,16 +1,16 @@
 {{-- TABLA 1: SOFTWARE DE TERCEROS --}}
-<div style="margin-bottom: 15px;">
-    <h3 style="font-size: 11px; font-weight: bold; margin: 5px 0; background-color: #f0f0f0; color: black; padding: 5px; text-align: center;">
+<div style="margin: 15px; 0">
+    <h3 style="font-size: 8px; font-weight: bold; margin: 5px 0; background-color: #f0f0f0; color: black; padding: 5px; text-align: center;">
         SOFTWARE DE TERCEROS
     </h3>
-    <table width="100%" border="1" cellspacing="0" cellpadding="4" style="font-size: 9px; border-collapse: collapse;">
+    <table width="100%" border="1" cellspacing="0" cellpadding="4" style="font-size: 6px; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f0f0f0;">
                 <th>N°</th>
                 <th>CÓDIGO</th>
                 <th>DENOMINACIÓN</th>
                 <th>NOMBRE</th>
-                <!-- <th style="width: 15%;">FUENTE</th> -->
+                <th style="width: 15%;">FUENTE</th>
                 <th>OBSERVACIONES</th>
             </tr>
         </thead>
@@ -21,7 +21,7 @@
                 <td>{{ $software->codigo ?? '' }}</td>
                 <td>{{ $software->denominacion ?? '' }}</td>
                 <td>{{ $software->nombre ?? '' }}</td>
-                <!-- <td>{{ $software->fuente ?? '' }}</td> -->
+                <td>{{ $software->fuente ?? '' }}</td>
                 <td>{{ $software->observaciones ?? '' }}</td>
             </tr>
             @empty
@@ -31,6 +31,19 @@
             @endforelse
         </tbody>
     </table>
+    <div>
+        <strong>Descripción de tipos de software:</strong><br>
+        <ul style="margin: 0; padding-left: 15px;">
+            <li><strong>Gratuita:</strong> Software libre de uso, sin necesidad de pago.</li>
+            <li><strong>Gratuita (GPL):</strong> Software libre bajo licencia GNU, uso y distribución permitidos.</li>
+            <li><strong>De pago / De pago (Suscripción):</strong> Licencia comercial válida, puede requerir pago único o suscripción.</li>
+            <li><strong>Volumen:</strong> Licencia corporativa válida para múltiples usuarios.</li>
+            <li><strong>Cuenta Microsoft / Cuenta:</strong> Software legal mediante cuenta corporativa o educativa.</li>
+            <li><strong>Redistribuible:</strong> Componentes legales para redistribución (por ejemplo, librerías o runtimes).</li>
+            <li><strong>Demo / Prueba:</strong> Licencia válida para uso temporal según condiciones de prueba.</li>
+            <li><strong>Controlador:</strong> Drivers legales necesarios para hardware o periféricos.</li>
+        </ul>
+    </div>
 </div>
 
 {{-- TABLA 2: SOFTWARE INTERNOS --}}
