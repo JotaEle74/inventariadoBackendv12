@@ -17,7 +17,7 @@
                 <br>
             </td>
             <td style="text-align:right;">
-                N° 001<br>
+                {{ $numero_acta->numero_acta }}<br>
                 Fecha: {{ \Carbon\Carbon::parse($activos[0]->fecha_registro ?? now())->format('Y-m-d') }}<br>
                 Tipo de verificación: FÍSICA(X) DIGITAL( )
             </td>

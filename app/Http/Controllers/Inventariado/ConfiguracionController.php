@@ -106,4 +106,3 @@ class ConfiguracionController extends BaseController
         }
     }
 }
-

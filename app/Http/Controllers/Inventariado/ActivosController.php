@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Exports\ActivosExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Models\Inventariado\Acta;
 class ActivosController extends BaseController
 {
     use ExportsAssets;
@@ -327,6 +328,11 @@ class ActivosController extends BaseController
     }
     public function reporteinventario(Request $request)
     {
+        // crear registro de acta con número secuencial de 3 dígitos
+        $numero_acta = Acta::create([
+            'numero_acta' => Acta::nextNumero(),
+        ]);
+
         $rules = [
             'responsable_id' => 'required|integer|exists:users,id',
             'area_id'        => 'required|integer|exists:areas,id',
@@ -430,7 +436,7 @@ class ActivosController extends BaseController
             ]);
         }
         $htmlBody = view('pdf.historial_body', compact('activos', 'total'))->render();
-            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two'))->render();
+            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two', 'numero_acta'))->render();
             $footer   = view('pdf.historial_footer', compact('activos', 'user', 'user_two'))->render();
             $mpdf = new Mpdf([
                 'format' => 'A4-L',
@@ -445,6 +451,7 @@ class ActivosController extends BaseController
     public function historialPdf(Request $request)
     {
         try {
+            $numero_acta = new Acta(['numero_acta' => '______']);
             $user=User::find($request->user_id);//user
             $activos=DB::table('activo_user as au')
             ->join('activos as a', 'au.activo_id', '=', 'a.id')
@@ -533,7 +540,7 @@ class ActivosController extends BaseController
                 ]);
             }
             $htmlBody = view('pdf.historial_body', compact('activos', 'total'))->render();
-            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two'))->render();
+            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two', 'numero_acta'))->render();
             $footer   = view('pdf.historial_footer', compact('activos', 'user', 'user_two'))->render();
             $mpdf = new Mpdf([
                 'format' => 'A4-L',
@@ -948,6 +955,10 @@ class ActivosController extends BaseController
     }
     public function faltaReportePdf(Request $request){
         try {
+            // crear número de acta secuencial
+            $numero_acta = Acta::create([
+                'numero_acta' => Acta::nextNumero(),
+            ]);
             $rules = [
                 'inventariador_id' => 'required|integer|exists:users,id',
                 'fecha' => 'required|date',
@@ -1060,7 +1071,7 @@ class ActivosController extends BaseController
             }
 
             $htmlBody = view('pdf.historial_body', compact('activos', 'total'))->render();
-            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two'))->render();
+            $header   = view('pdf.historial_header', compact('activos', 'area', 'user', 'user_two', 'numero_acta'))->render();
             $footer   = view('pdf.historial_footer', compact('activos', 'user', 'user_two'))->render();
             $mpdf = new Mpdf([
                 'format' => 'A4-L',

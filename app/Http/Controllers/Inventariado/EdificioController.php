@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\inventariado;
+namespace App\Http\Controllers\Inventariado;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
